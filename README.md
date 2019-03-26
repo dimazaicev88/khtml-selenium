@@ -1,3 +1,3 @@
 # khtml-selenium
 
-Selenium Fraemwork
+Selenium Framework
