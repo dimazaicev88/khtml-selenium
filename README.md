@@ -1,6 +1,3 @@
-# khtml-selenium
-
-
 # Аннотации
 
 **@Page** 
