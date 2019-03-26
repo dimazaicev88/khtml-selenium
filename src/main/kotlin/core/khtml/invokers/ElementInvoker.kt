@@ -1,6 +1,7 @@
 package core.khtml.invokers
 
 import core.khtml.annotations.Element
+import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
 import core.khtml.build.XpathBuilder.Companion.buildXpath
 import core.khtml.build.XpathBuilder.Companion.buildXpathWithLastPosition
@@ -10,6 +11,7 @@ import core.khtml.element.HtmlElement
 import core.khtml.ext.returnMethodType
 import core.khtml.utils.ReflectUtils.createCustomElement
 import core.khtml.utils.ReflectUtils.createHtmlElement
+import core.khtml.utils.ReflectUtils.findAnnotation
 import core.khtml.utils.ReflectUtils.getMethodParams
 import core.khtml.utils.ReflectUtils.isCustomElement
 import core.khtml.utils.ReflectUtils.isCustomElementList
@@ -30,6 +32,11 @@ class ElementInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template: String = methodInfo.method.getAnnotation(Element::class.java).xpath
         val xpath = replaceParams(template, mapParams)
+
+        if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
+            val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
+            config.fullXpath.add(FullXpath(fragmentXpath))
+        }
         config.fullXpath.add(FullXpath(xpath))
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)

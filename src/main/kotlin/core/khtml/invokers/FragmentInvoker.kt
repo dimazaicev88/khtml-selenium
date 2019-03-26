@@ -1,5 +1,6 @@
 package core.khtml.invokers
 
+import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
@@ -17,9 +18,15 @@ class FragmentInvoker : MethodInvoker {
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
 
+
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             config.fullXpath.clear()
         }
+        if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
+            val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
+            config.fullXpath.add(FullXpath(fragmentXpath))
+        }
+
         if (config.fullXpath.size > 0) {
             config.fullXpath.last.position = config.instanceId
         }

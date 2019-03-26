@@ -1,38 +1,55 @@
 package example
 
-import core.khtml.annotations.Page
 import core.khtml.loader.KHTML
-import core.khtml.webdriver.WebPage
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.chrome.ChromeDriver
+import org.openqa.selenium.chrome.ChromeOptions
 import org.testng.Assert.assertTrue
 import org.testng.annotations.Test
-
-@Page
-interface MainPageElements : WebPage {
-
-    fun mainNav(): MainNav
-
-    fun header(): Header
-
-    fun portfolio(): Portfolio
-
-    fun about(): About
-
-    fun contact(): List<Contact>
-}
+import java.util.*
 
 
-class MainPageImpl constructor(driver: WebDriver) {
-    lateinit var mainPageElements: MainPageElements
+class SimplePage {
+    lateinit var mainPageElements: AbstractFragment
+    private var driver: WebDriver
 
     init {
+        this.driver = createDriver()
         KHTML.decorate(this, driver)
     }
 
     @Test
     fun existsLogoImg() {
-        assertTrue(mainPageElements.header().logoImg().exists)
+        driver.get("http://autotest.officemag.ru/services/sets/?ID=31850")
+        assertTrue(mainPageElements.someFragment().def())
     }
+
+    fun createDriver(): WebDriver {
+        val options = ChromeOptions()
+        System.setProperty("webdriver.chrome.driver", System.getenv("WEBDRIVER_CHROME"))
+        val prefs = HashMap<String, Any>()
+        prefs["download.prompt_for_download"] = "false"
+        prefs["download.directory_upgrade"] = "true"
+        prefs["safebrowsing.enabled"] = "true"
+        options.addArguments(
+            "--user-agent=webdriver_samson",
+            "disable-infobars",
+            "--updateFilesAndUpload-maximized",
+            "--ignore-certificate-errors",
+            "--disable-dev-shm-usage",
+            "--no-sandbox",
+            "--safebrowsing-disable-download-protection"
+        )
+
+        options.setExperimentalOption("prefs", prefs)
+        val driver = ChromeDriver(options)
+        driver.manage().deleteAllCookies()
+        driver.manage().window().maximize()
+        return driver
+    }
+
 }
+
+
 
 
