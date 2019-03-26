@@ -33,6 +33,10 @@ class ElementInvoker : MethodInvoker {
         val template: String = methodInfo.method.getAnnotation(Element::class.java).xpath
         val xpath = replaceParams(template, mapParams)
 
+        if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
+            config.fullXpath.clear()
+        }
+
         if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
             val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
             config.fullXpath.add(FullXpath(fragmentXpath))
