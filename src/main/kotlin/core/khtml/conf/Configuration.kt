@@ -1,6 +1,7 @@
 package core.khtml.conf
 
 import org.openqa.selenium.WebDriver
+import java.lang.reflect.Method
 import java.util.*
 
 data class Configuration(
@@ -14,5 +15,6 @@ data class Configuration(
 
 data class FullXpath(
     val xpath: String,
-    var position: Int = 0
+    var position: Int = 0,
+    var method: Method? = null
 )

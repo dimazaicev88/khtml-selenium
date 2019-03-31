@@ -9,9 +9,9 @@ import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
 import core.khtml.element.HtmlElement
 import core.khtml.ext.returnMethodType
+import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createCustomElement
 import core.khtml.utils.ReflectUtils.createHtmlElement
-import core.khtml.utils.ReflectUtils.findAnnotation
 import core.khtml.utils.ReflectUtils.getMethodParams
 import core.khtml.utils.ReflectUtils.isCustomElement
 import core.khtml.utils.ReflectUtils.isCustomElementList
@@ -37,11 +37,17 @@ class ElementInvoker : MethodInvoker {
             config.fullXpath.clear()
         }
 
+        val fragmetxx = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
+
         if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
             val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
             config.fullXpath.add(FullXpath(fragmentXpath))
         }
-        config.fullXpath.add(FullXpath(xpath))
+
+        if (config.fullXpath.none { it.method == methodInfo.method }) {
+            config.fullXpath.add(FullXpath(xpath, method = methodInfo.method))
+        }
+
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }

@@ -1,25 +1,30 @@
 package example
 
 import core.khtml.annotations.*
-import core.khtml.element.HtmlElement
 import core.khtml.element.Link
-import core.khtml.waits.WaitCondition
 
-@Fragment(".//body")
-interface AbstractFragment {
+
+interface AbstractFragment : F1, F2 {
 
     @Fragment(".//div")
-    fun someFragment(): SomeFragment
+    fun someFragment(): F1
 
     @Element(".//a']")
     fun someLink(): Link
 }
 
-interface SomeFragment {
+@Fragment(".//f1")
+interface F1 {
 
     fun def(): Boolean {
-        return false
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
+
+}
+
+@Fragment(".//f1")
+interface F2 {
+
 }
 
 

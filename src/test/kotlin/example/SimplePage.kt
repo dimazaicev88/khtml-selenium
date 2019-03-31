@@ -20,13 +20,14 @@ class SimplePage {
 
     @Test
     fun existsLogoImg() {
-        driver.get("http://autotest.officemag.ru/services/sets/?ID=31850")
+        driver.get("https://www.google.com/")
         assertTrue(mainPageElements.someFragment().def())
     }
 
     fun createDriver(): WebDriver {
         val options = ChromeOptions()
-        System.setProperty("webdriver.chrome.driver", System.getenv("WEBDRIVER_CHROME"))
+
+        System.setProperty("webdriver.chrome.driver", "F:\\google_driver\\chromedriver.exe")
         val prefs = HashMap<String, Any>()
         prefs["download.prompt_for_download"] = "false"
         prefs["download.directory_upgrade"] = "true"

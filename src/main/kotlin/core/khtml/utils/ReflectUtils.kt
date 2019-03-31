@@ -2,6 +2,7 @@ package core.khtml.utils
 
 import com.google.common.collect.Lists
 import core.khtml.annotations.*
+import core.khtml.conf.FullXpath
 import core.khtml.element.CustomElement
 import core.khtml.element.HtmlElement
 import core.khtml.ext.isListReturn
@@ -159,12 +160,34 @@ object ReflectUtils {
             .any { it.name == method.name && Objects.deepEquals(it.parameterTypes, argsForSearchMethod) }
     }
 
-    fun findAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
+    fun findFragmentXpath(clazz: Class<*>): List<FullXpath> {
+        val listXpath = LinkedList<FullXpath>()
+        if (clazz.isAnnotationPresent(Fragment::class.java)) {
+            listXpath.add(FullXpath(clazz.getAnnotation(Fragment::class.java).xpath))
+        }
+        var listInterface = ClassUtils.getAllInterfaces(clazz)
+
+        while (listInterface.isNotEmpty()) {
+            listInterface = ClassUtils.getAllInterfaces(clazz)
+            if (listInterface.filter {
+                    it.isAnnotationPresent(Fragment::class.java) && it.getAnnotation(Fragment::class.java).inherited
+                }.size > 1) {
+                throw RuntimeException("More than one inherited fragment")
+            }
+
+           clazz=listInterface.find { it.isAnnotationPresent(Fragment::class.java) && it.getAnnotation(Fragment::class.java).inherited }
+
+        }
+        return listXpath
+    }
+
+
+    fun isFindAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
         if (clazz.isAnnotationPresent(annotationClass))
             return true
-        val list = ClassUtils.getAllInterfaces(clazz)
-        for (cls in list) {
-            if (findAnnotation(cls, annotationClass))
+        val listInterface = ClassUtils.getAllInterfaces(clazz)
+        for (cls in listInterface) {
+            if (isFindAnnotation(cls, annotationClass))
                 return true
         }
         return false
