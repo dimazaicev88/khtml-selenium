@@ -37,6 +37,14 @@ class ElementInvoker : MethodInvoker {
             config.fullXpath.clear()
         }
 
+        if (config.fullXpath.size > 0) {
+            config.fullXpath.last.position = config.instanceId
+        }
+
+        if (config.fullXpath.filter { it.method == methodInfo.method }.count() == 0) {
+            config.fullXpath.add(FullXpath(xpath, method = methodInfo.method))
+        }
+
         if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
             val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
             config.fullXpath.add(FullXpath(fragmentXpath))
