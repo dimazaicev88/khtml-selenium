@@ -69,28 +69,28 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
 
     @Suppress("UNCHECKED_CAST")
     override fun jsChange(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('change'));")
+        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('change', { bubbles: true }));")
         return this as T
 
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsBlur(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('blur'));")
+        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('blur', { bubbles: true }));")
         return this as T
 
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsClick(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('click'));")
+        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('click', { bubbles: true }));")
         return this as T
 
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsFocus(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('focus'));")
+        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('focus', { bubbles: true }));")
         return this as T
     }
 

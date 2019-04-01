@@ -29,22 +29,22 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
     }
 
     override fun jsChange(): HtmlElement {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('change'));")
+        driver.js("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element)
         return this
     }
 
     override fun jsBlur(): HtmlElement {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('blur'));")
+        driver.js("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", element)
         return this
     }
 
     override fun jsClick(): HtmlElement {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('click'));")
+        driver.js("arguments[0].dispatchEvent(new Event('click', { bubbles: true }));", element)
         return this
     }
 
     override fun jsFocus(): HtmlElement {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('focus'));")
+        driver.js("arguments[0].dispatchEvent(new Event('focus', { bubbles: true }));", element)
         return this
     }
 
