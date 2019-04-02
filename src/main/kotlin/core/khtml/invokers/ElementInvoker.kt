@@ -23,6 +23,7 @@ import core.khtml.utils.WebDriverUtils.searchWebElement
 import core.khtml.utils.WebDriverUtils.waitConditionFragment
 import org.openqa.selenium.WebDriverException
 import org.openqa.selenium.WebElement
+import java.util.*
 
 
 class ElementInvoker : MethodInvoker {
@@ -33,23 +34,22 @@ class ElementInvoker : MethodInvoker {
         val template: String = methodInfo.method.getAnnotation(Element::class.java).xpath
         val xpath = replaceParams(template, mapParams)
 
+        val tmpFullXpath = config.fullXpath.clone() as LinkedList<FullXpath>
+
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
-            config.fullXpath.clear()
+            tmpFullXpath.clear()
         }
 
-        if (config.fullXpath.size > 0) {
-            config.fullXpath.last.position = config.instanceId
+        if (tmpFullXpath.size > 0) {
+            tmpFullXpath.last.position = config.instanceId
         }
-
-        if (config.fullXpath.filter { it.method == methodInfo.method }.count() == 0) {
-            config.fullXpath.add(FullXpath(xpath, method = methodInfo.method))
-        }
-
         if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
             val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath
-            config.fullXpath.add(FullXpath(fragmentXpath))
+            tmpFullXpath.add(FullXpath(fragmentXpath))
         }
-        config.fullXpath.add(FullXpath(xpath))
+
+        tmpFullXpath.add(FullXpath(xpath))
+
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }
@@ -57,14 +57,14 @@ class ElementInvoker : MethodInvoker {
             isCustomElement(methodInfo.method.returnType) -> {
                 return createCustomElement(
                     methodInfo.method.returnType,
-                    buildXpath(config.fullXpath),
+                    buildXpath(tmpFullXpath),
                     config.driver
                 )
             }
             isHtmlElement(methodInfo.method.returnType) -> {
                 return createHtmlElement(
                     methodInfo.method.returnType as Class<HtmlElement>,
-                    buildXpath(config.fullXpath),
+                    buildXpath(tmpFullXpath),
                     config.driver
                 )
             }
@@ -75,19 +75,19 @@ class ElementInvoker : MethodInvoker {
                 return (0 until elements.size).map {
                     createCustomElement(
                         methodInfo.method.returnMethodType!!,
-                        buildXpathWithLastPosition(config.fullXpath, it + 1),
+                        buildXpathWithLastPosition(tmpFullXpath, it + 1),
                         config.driver
                     )
                 }.toList()
             }
             isHtmlElementList(methodInfo.method) -> {
                 val elements = searchWebElement(
-                    config.driver, buildXpath(config.fullXpath), SearchType.ALL
+                    config.driver, buildXpath(tmpFullXpath), SearchType.ALL
                 ) as List<WebElement>
                 return (0 until elements.size).map {
                     createHtmlElement(
                         methodInfo.method.returnMethodType as Class<HtmlElement>,
-                        buildXpathWithLastPosition(config.fullXpath, it + 1),
+                        buildXpathWithLastPosition(tmpFullXpath, it + 1),
                         config.driver
                     )
                 }.toList()
