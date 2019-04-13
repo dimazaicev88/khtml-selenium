@@ -2,6 +2,7 @@ package core.khtml.utils
 
 import com.google.common.collect.Lists
 import core.khtml.annotations.*
+import core.khtml.conf.FullXpath
 import core.khtml.element.CustomElement
 import core.khtml.element.HtmlElement
 import core.khtml.ext.isListReturn
@@ -159,12 +160,12 @@ object ReflectUtils {
             .any { it.name == method.name && Objects.deepEquals(it.parameterTypes, argsForSearchMethod) }
     }
 
-    fun findAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
+    fun isFindAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
         if (clazz.isAnnotationPresent(annotationClass))
             return true
-        val list = ClassUtils.getAllInterfaces(clazz)
-        for (cls in list) {
-            if (findAnnotation(cls, annotationClass))
+        val listInterface = ClassUtils.getAllInterfaces(clazz)
+        for (cls in listInterface) {
+            if (isFindAnnotation(cls, annotationClass))
                 return true
         }
         return false

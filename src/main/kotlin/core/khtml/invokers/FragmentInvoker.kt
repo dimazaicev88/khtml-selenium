@@ -4,6 +4,7 @@ import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
+import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createProxy
 import core.khtml.utils.ReflectUtils.findFragmentTemplate
 import core.khtml.utils.ReflectUtils.getMethodParams
@@ -17,6 +18,8 @@ class FragmentInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
+
+//        val fragmentXpath = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
 
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {

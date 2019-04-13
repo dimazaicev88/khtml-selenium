@@ -7,6 +7,7 @@ import core.khtml.waits.WaitElement
 import org.openqa.selenium.By
 import org.openqa.selenium.StaleElementReferenceException
 import org.openqa.selenium.WebDriver
+import org.openqa.selenium.WebElement
 import java.lang.reflect.Method
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -24,6 +25,24 @@ object WebDriverUtils {
                     SearchType.SINGLE -> driver.findElement(By.xpath(xpath))
                     SearchType.ALL -> driver.findElements(By.xpath(xpath))
                 }
+            } catch (e: StaleElementReferenceException) {
+                lastException = e
+                this.waitFor()
+            }
+        } while (isNowBefore(end))
+        throw lastException
+    }
+
+    fun execElementAction(
+        xpath: String,
+        driver: WebDriver,
+        block: (element: WebElement) -> Any?
+    ): Any? {
+        val end = laterBy(TimeUnit.SECONDS.toMillis(timeWait))
+        var lastException: StaleElementReferenceException
+        do {
+            try {
+                return block(driver.findElement(By.xpath(xpath)))
             } catch (e: StaleElementReferenceException) {
                 lastException = e
                 this.waitFor()
