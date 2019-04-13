@@ -4,31 +4,9 @@ import core.khtml.annotations.*
 import core.khtml.element.Link
 
 
-interface AbstractFragment : F1, F2 {
+@Page
+interface AbstractPage {
 
-    @Fragment(".//div")
-    fun someFragment(): F1
-
-    @Element(".//a']")
-    fun someLink(): Link
+    @Element(".//div[@class='moving']")
+    fun box(): Link
 }
-
-@Fragment(".//f1")
-interface F1 {
-
-    fun def(): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-}
-
-@Fragment(".//f1")
-interface F2 {
-
-}
-
-
-
-
-
-

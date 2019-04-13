@@ -1,33 +1,40 @@
 package example
 
 import core.khtml.loader.KHTML
+import core.khtml.waits.WaitCondition
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
 import org.testng.Assert.assertTrue
+import org.testng.annotations.AfterClass
 import org.testng.annotations.Test
 import java.util.*
 
 
 class SimplePage {
-    lateinit var mainPageElements: AbstractFragment
+    private lateinit var mainPageElements: AbstractPage
     private var driver: WebDriver
 
     init {
         this.driver = createDriver()
         KHTML.decorate(this, driver)
+        driver.get("file:///C:/Users/Dima/WebstormProjects/untitled/index.html")
     }
 
-    @Test
+    @Test(invocationCount = 100)
     fun existsLogoImg() {
-        driver.get("https://www.google.com/")
-        assertTrue(mainPageElements.someFragment().def())
+        println(mainPageElements.box().attr("data-test"))
+    }
+
+    @AfterClass
+    fun afterClass() {
+        driver.close()
     }
 
     fun createDriver(): WebDriver {
         val options = ChromeOptions()
 
-        System.setProperty("webdriver.chrome.driver", "F:\\google_driver\\chromedriver.exe")
+        System.setProperty("webdriver.chrome.driver", "F:\\google_driver/chromedriver.exe")
         val prefs = HashMap<String, Any>()
         prefs["download.prompt_for_download"] = "false"
         prefs["download.directory_upgrade"] = "true"
@@ -48,7 +55,6 @@ class SimplePage {
         driver.manage().window().maximize()
         return driver
     }
-
 }
 
 

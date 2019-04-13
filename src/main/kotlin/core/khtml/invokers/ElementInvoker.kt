@@ -37,7 +37,7 @@ class ElementInvoker : MethodInvoker {
             config.fullXpath.clear()
         }
 
-        val fragmetxx = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
+//        val fragmetxx = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
 
         if (methodInfo.method.declaringClass.isAnnotationPresent(Fragment::class.java)) {
             val fragmentXpath = methodInfo.method.declaringClass.getAnnotation(Fragment::class.java).xpath

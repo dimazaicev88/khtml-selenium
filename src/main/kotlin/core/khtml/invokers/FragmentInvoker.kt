@@ -19,7 +19,7 @@ class FragmentInvoker : MethodInvoker {
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
 
-        val fragmentXpath = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
+//        val fragmentXpath = ReflectUtils.findFragmentXpath(methodInfo.method.declaringClass)
 
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {

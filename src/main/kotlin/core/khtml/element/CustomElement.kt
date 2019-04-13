@@ -2,6 +2,7 @@ package core.khtml.element
 
 import core.khtml.ext.js
 import core.khtml.utils.SearchType
+import core.khtml.utils.WebDriverUtils.execElementAction
 import core.khtml.utils.WebDriverUtils.searchWebElement
 import core.khtml.waits.WaitCondition
 import core.khtml.waits.WaitElement
@@ -96,7 +97,9 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
 
     @Suppress("UNCHECKED_CAST")
     override fun click(): T {
-        element.click()
+        execElementAction(xpath, driver) {
+            it.click()
+        }
         return this as T
     }
 
@@ -129,7 +132,9 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
     }
 
     override fun attr(name: String): String {
-        return element.getAttribute(name)
+        return execElementAction(xpath, driver) {
+            it.getAttribute(name)
+        } as String
     }
 
     override fun findElements(xpath: String): List<WebElement> {
