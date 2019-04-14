@@ -4,11 +4,8 @@ import core.khtml.loader.KHTML
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
-import org.testng.Assert.assertEquals
 import org.testng.annotations.AfterClass
 import org.testng.annotations.Test
-import java.io.File
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
 
@@ -19,7 +16,7 @@ class SimplePage {
     private lateinit var contextInFragment: ContextInFragment
     private lateinit var fragmentInFragment: FragmentInFragment
     private lateinit var inheritanceFragment: InheritanceFragment
-    private lateinit var dumpFragment: DumpFragment
+    private lateinit var dumpFragment: ui.dump.DumpFragment
 
     private var driver: WebDriver
 
@@ -65,7 +62,8 @@ class SimplePage {
 
     @Test
     fun dumpFragment() {
-        dumpFragment.listFragments()
+        driver.get("https://www.officemag.ru/")
+        dumpFragment.innerFragment()
     }
 
 

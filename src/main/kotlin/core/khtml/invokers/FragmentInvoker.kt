@@ -1,18 +1,19 @@
 package core.khtml.invokers
 
-import core.khtml.annotations.Dump
 import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
+import core.khtml.build.XpathBuilder
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
-import core.khtml.dump.DumpInfo
-import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createProxy
 import core.khtml.utils.ReflectUtils.findFragmentTemplate
 import core.khtml.utils.ReflectUtils.getDumpInfo
 import core.khtml.utils.ReflectUtils.getMethodParams
 import core.khtml.utils.ReflectUtils.replaceParams
+import core.khtml.utils.WebDriverUtils.dump
+import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.utils.WebDriverUtils.waitConditionFragment
+import org.openqa.selenium.By
 
 class FragmentInvoker : MethodInvoker {
 
@@ -21,12 +22,7 @@ class FragmentInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
-
-        val dumpInfo: DumpInfo
-//        if (methodInfo.method.isAnnotationPresent(Dump::class.java)) {
-//            val dumpAnnotation = methodInfo.method.getAnnotation(Dump::class.java)
-//            dumpInfo = getDumpInfo(dumpAnnotation)
-//        }
+        val dumpInfo = getDumpInfo(methodInfo.method.declaringClass)
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             config.fullXpath.clear()
@@ -41,7 +37,12 @@ class FragmentInvoker : MethodInvoker {
         }
         config.target = methodInfo.method.declaringClass
         config.fullXpath.add(FullXpath(xpath))
-
+        if (dumpInfo != null) {
+            val resultXpath = XpathBuilder.buildXpath(config.fullXpath)
+            dump(resultXpath, driver = config.driver, dumpInfo = dumpInfo) {
+                safeOperation { config.driver.findElement(By.xpath(resultXpath)) }
+            }
+        }
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }

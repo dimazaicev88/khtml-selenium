@@ -40,7 +40,6 @@ class ElementInvoker : MethodInvoker {
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             tmpFullXpath.clear()
         }
-
         if (tmpFullXpath.size > 0) {
             tmpFullXpath.last.position = config.instanceId
         }
@@ -50,7 +49,6 @@ class ElementInvoker : MethodInvoker {
         }
 
         tmpFullXpath.add(FullXpath(xpath))
-
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }

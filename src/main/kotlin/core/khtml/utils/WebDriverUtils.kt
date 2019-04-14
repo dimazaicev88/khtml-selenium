@@ -25,7 +25,6 @@ object WebDriverUtils {
         var lastException: StaleElementReferenceException
         do {
             try {
-                val q = block()
                 return block()
             } catch (e: StaleElementReferenceException) {
                 lastException = e
@@ -71,19 +70,18 @@ object WebDriverUtils {
         ).waitCondition(conditionAnnotation)
     }
 
-    fun dump(driver: WebDriver, dumpInfo: DumpInfo, block: () -> Any?): Any? {
+    fun dump(xpath: String, driver: WebDriver, dumpInfo: DumpInfo, block: () -> Any?): Any? {
         val fileName =
             "${dumpInfo.clazz.canonicalName.replace(
                 ".",
                 "_"
-            )}_${UUID.randomUUID().toString().substring(0, 4)}.txt"
+            )}_${UUID.randomUUID().toString().substring(0, 4)}"
 
         fun createDump() {
             driver.saveScreenshot(dumpInfo.dir, fileName)
-            val path = Paths.get(dumpInfo.dir, "dump_$fileName")
+            val path = Paths.get(dumpInfo.dir, "$fileName.txt")
             File(path.toString()).createNewFile()
-            val text = driver.findElement(By.xpath(".//html")).getAttribute("innerHTML")
-            File(path.toString()).writeText(text)
+            File(path.toString()).writeText("xpath:$xpath\nsource:  ${driver.pageSource}")
         }
 
         if (dumpInfo.dir.isEmpty()) {

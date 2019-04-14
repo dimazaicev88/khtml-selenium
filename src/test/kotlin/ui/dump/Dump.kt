@@ -8,7 +8,7 @@ import core.khtml.annotations.Fragment
 interface DumpFragment {
 
     @Fragment(".//innerFragment")
-    fun innerFragment(): ResultFragment
+    fun innerFragment():ResultFragment
 }
 
 interface ResultFragment {

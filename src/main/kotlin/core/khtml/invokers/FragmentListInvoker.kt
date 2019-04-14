@@ -28,7 +28,7 @@ class FragmentListInvoker : MethodInvoker {
         val xpath = replaceParams(template, mapParams)
         val dumpInfo = getDumpInfo(methodInfo.method.declaringClass)
 
-        //Сброс strXpath, если вызов метода из класса Page
+        //Сброс xpath, если вызов метода из класса Page
         if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java)) {
             config.fullXpath.clear()
         }
@@ -43,10 +43,11 @@ class FragmentListInvoker : MethodInvoker {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }
         val elements = if (dumpInfo != null) {
-            dump(driver = config.driver, dumpInfo = dumpInfo) {
+            val resultXpath = buildXpath(config.fullXpath)
+            dump(resultXpath, driver = config.driver, dumpInfo = dumpInfo) {
                 safeOperation {
-                    config.driver.findElement(By.xpath(buildXpath(config.fullXpath)))
-                    config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
+                    config.driver.findElement(By.xpath(resultXpath))
+                    config.driver.findElements(By.xpath(resultXpath))
                 }
             } as List<WebElement>
         } else {

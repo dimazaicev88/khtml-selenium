@@ -181,7 +181,8 @@ object ReflectUtils {
                     System.getProperty("khtml.dump.dir")
                 },
                 screenshot = dumpAnnotation.screenshot,
-                condition = dumpAnnotation.condition
+                condition = dumpAnnotation.condition,
+                clazz = clazz
             )
         }
         return null
