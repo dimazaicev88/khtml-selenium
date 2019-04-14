@@ -75,7 +75,7 @@ object WebDriverUtils {
             "${dumpInfo.clazz.canonicalName.replace(
                 ".",
                 "_"
-            )}_${UUID.randomUUID().toString().substring(0, 4)}"
+            )}_${UUID.randomUUID().toString().substring(0, 5)}"
 
         fun createDump() {
             driver.saveScreenshot(dumpInfo.dir, fileName)
