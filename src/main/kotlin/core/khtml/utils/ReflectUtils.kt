@@ -2,7 +2,7 @@ package core.khtml.utils
 
 import com.google.common.collect.Lists
 import core.khtml.annotations.*
-import core.khtml.conf.FullXpath
+import core.khtml.dump.DumpInfo
 import core.khtml.element.CustomElement
 import core.khtml.element.HtmlElement
 import core.khtml.ext.isListReturn
@@ -169,5 +169,21 @@ object ReflectUtils {
                 return true
         }
         return false
+    }
+
+    fun getDumpInfo(clazz: Class<*>): DumpInfo? {
+        if (clazz.isAnnotationPresent(Dump::class.java)) {
+            val dumpAnnotation = clazz.getAnnotation(Dump::class.java)
+            return DumpInfo(
+                dir = if (dumpAnnotation.dirDump.isNotEmpty()) {
+                    dumpAnnotation.dirDump
+                } else {
+                    System.getProperty("khtml.dump.dir")
+                },
+                screenshot = dumpAnnotation.screenshot,
+                condition = dumpAnnotation.condition
+            )
+        }
+        return null
     }
 }

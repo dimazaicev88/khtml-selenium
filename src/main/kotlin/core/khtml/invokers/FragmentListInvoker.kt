@@ -8,12 +8,16 @@ import core.khtml.conf.FullXpath
 import core.khtml.ext.returnMethodType
 import core.khtml.utils.ReflectUtils.createProxy
 import core.khtml.utils.ReflectUtils.findFragmentTemplate
+import core.khtml.utils.ReflectUtils.getDumpInfo
+
 import core.khtml.utils.ReflectUtils.getMethodParams
 import core.khtml.utils.ReflectUtils.replaceParams
-import core.khtml.utils.SearchType
-import core.khtml.utils.WebDriverUtils.searchWebElement
+import core.khtml.utils.WebDriverUtils.dump
+import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.utils.WebDriverUtils.waitConditionFragment
+import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
+import java.util.*
 
 class FragmentListInvoker : MethodInvoker {
 
@@ -22,10 +26,14 @@ class FragmentListInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
+        val dumpInfo = getDumpInfo(methodInfo.method.declaringClass)
 
+        //Сброс strXpath, если вызов метода из класса Page
         if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java)) {
             config.fullXpath.clear()
         }
+
+        //Установка позиции элемента
         if (config.fullXpath.size > 0) {
             config.fullXpath.last.position = config.instanceId
         }
@@ -34,9 +42,19 @@ class FragmentListInvoker : MethodInvoker {
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
         }
-        val elements = searchWebElement(
-            config.driver, buildXpath(config.fullXpath), SearchType.ALL
-        ) as List<WebElement>
+        val elements = if (dumpInfo != null) {
+            dump(driver = config.driver, dumpInfo = dumpInfo) {
+                safeOperation {
+                    config.driver.findElement(By.xpath(buildXpath(config.fullXpath)))
+                    config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
+                }
+            } as List<WebElement>
+        } else {
+            safeOperation {
+                config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
+            } as List<WebElement>
+        }
+
         val listElements = (0 until elements.size).map {
             val typeGeneric = methodInfo.method.returnMethodType
                 ?: throw RuntimeException("Undefined generic type")

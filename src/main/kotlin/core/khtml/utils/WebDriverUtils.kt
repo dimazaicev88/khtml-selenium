@@ -3,12 +3,16 @@ package core.khtml.utils
 import core.khtml.annotations.Wait
 import core.khtml.build.XpathBuilder
 import core.khtml.conf.FullXpath
+import core.khtml.dump.DumpCondition
+import core.khtml.dump.DumpInfo
+import core.khtml.ext.saveScreenshot
 import core.khtml.waits.WaitElement
-import org.openqa.selenium.By
-import org.openqa.selenium.StaleElementReferenceException
-import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WebElement
+import jdk.nashorn.internal.AssertsEnabled
+import org.openqa.selenium.*
+import java.io.File
+import java.lang.RuntimeException
 import java.lang.reflect.Method
+import java.nio.file.Paths
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -16,39 +20,30 @@ object WebDriverUtils {
     private const val timeWait: Long = 30
     private const val sleepFor = 500L
 
-    fun searchWebElement(driver: WebDriver, xpath: String, searchType: SearchType): Any {
+    fun safeOperation(block: () -> Any): Any {
         val end = laterBy(TimeUnit.SECONDS.toMillis(timeWait))
         var lastException: StaleElementReferenceException
         do {
             try {
-                return when (searchType) {
-                    SearchType.SINGLE -> driver.findElement(By.xpath(xpath))
-                    SearchType.ALL -> driver.findElements(By.xpath(xpath))
-                }
+                val q = block()
+                return block()
             } catch (e: StaleElementReferenceException) {
                 lastException = e
                 this.waitFor()
             }
         } while (isNowBefore(end))
         throw lastException
+
     }
 
-    fun execElementAction(
+    fun execWebElementAction(
         xpath: String,
         driver: WebDriver,
         block: (element: WebElement) -> Any?
     ): Any? {
-        val end = laterBy(TimeUnit.SECONDS.toMillis(timeWait))
-        var lastException: StaleElementReferenceException
-        do {
-            try {
-                return block(driver.findElement(By.xpath(xpath)))
-            } catch (e: StaleElementReferenceException) {
-                lastException = e
-                this.waitFor()
-            }
-        } while (isNowBefore(end))
-        throw lastException
+        return safeOperation {
+            block(driver.findElement(By.xpath(xpath)))!!
+        }
     }
 
     private fun waitFor() {
@@ -75,9 +70,41 @@ object WebDriverUtils {
             timeOutInSeconds = timeAnnotation
         ).waitCondition(conditionAnnotation)
     }
+
+    fun dump(driver: WebDriver, dumpInfo: DumpInfo, block: () -> Any?): Any? {
+        val fileName =
+            "${dumpInfo.clazz.canonicalName.replace(
+                ".",
+                "_"
+            )}_${UUID.randomUUID().toString().substring(0, 4)}.txt"
+
+        fun createDump() {
+            driver.saveScreenshot(dumpInfo.dir, fileName)
+            val path = Paths.get(dumpInfo.dir, "dump_$fileName")
+            File(path.toString()).createNewFile()
+            val text = driver.findElement(By.xpath(".//html")).getAttribute("innerHTML")
+            File(path.toString()).writeText(text)
+        }
+
+        if (dumpInfo.dir.isEmpty()) {
+            throw RuntimeException("Directory for save dump not set")
+        }
+        if (dumpInfo.condition == DumpCondition.FAIL) {
+            try {
+                return block()
+            } catch (e: ElementNotVisibleException) {
+                throw e
+            } catch (e: ElementNotInteractableException) {
+                createDump()
+                throw e
+            } catch (e: WebDriverException) {
+                createDump()
+                throw e
+            }
+        } else {
+            createDump()
+            return block()
+        }
+    }
 }
 
-enum class SearchType {
-    SINGLE,
-    ALL
-}

@@ -1,30 +1,73 @@
 package example
 
 import core.khtml.loader.KHTML
-import core.khtml.waits.WaitCondition
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
-import org.testng.Assert.assertTrue
+import org.testng.Assert.assertEquals
 import org.testng.annotations.AfterClass
 import org.testng.annotations.Test
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 import java.util.*
 
 
 class SimplePage {
-    private lateinit var mainPageElements: AbstractPage
+    private lateinit var elementInPage: ElementInPage
+    private lateinit var fragmentInPage: FragmentInPage
+    private lateinit var contextInFragment: ContextInFragment
+    private lateinit var fragmentInFragment: FragmentInFragment
+    private lateinit var inheritanceFragment: InheritanceFragment
+    private lateinit var dumpFragment: DumpFragment
+
     private var driver: WebDriver
 
     init {
         this.driver = createDriver()
         KHTML.decorate(this, driver)
-        driver.get("file:///C:/Users/Dima/WebstormProjects/untitled/index.html")
+        val path = Paths.get(System.getProperty("user.dir"), "dump")
+        System.setProperty("khtml.dump.dir", path.toString())
     }
 
-    @Test(invocationCount = 100)
-    fun existsLogoImg() {
-        println(mainPageElements.box().attr("data-test"))
+//    @Test
+//    fun elementInPage() {
+//        assertEquals(elementInPage.elementInPage().strXpath, ".//div[@class='elementInPage']")
+//    }
+//
+//    @Test
+//    fun fragmentInPage() {
+//        assertEquals(fragmentInPage.fragmentInPage().context().strXpath, ".//div[@class='fragmentInPage']")
+//    }
+//
+//    @Test
+//    fun contextInFragment() {
+//        assertEquals(contextInFragment.context().strXpath, ".//div[@class='moving']")
+//    }
+//
+//    @Test
+//    fun fragmentInFragment() {
+//        assertEquals(
+//            fragmentInFragment.fragmentInFragment().context().strXpath,
+//            ".//div[@class='FragmentInFragment']//div[@class='fragmentInFragment']"
+//        )
+//    }
+//
+//    @Test
+//    fun elementInFragment() {
+//        assertEquals(elementInPage.elementInPage().strXpath, ".//div[@class='moving']")
+//    }
+//
+//    @Test
+//    fun inheritanceFragment() {
+//        assertEquals(inheritanceFragment.context().strXpath, ".//div[@class='moving']")
+//    }
+
+    @Test
+    fun dumpFragment() {
+        dumpFragment.listFragments()
     }
+
 
     @AfterClass
     fun afterClass() {
