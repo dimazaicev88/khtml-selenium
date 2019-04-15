@@ -7,10 +7,8 @@ import core.khtml.dump.DumpCondition
 import core.khtml.dump.DumpInfo
 import core.khtml.ext.saveScreenshot
 import core.khtml.waits.WaitElement
-import jdk.nashorn.internal.AssertsEnabled
 import org.openqa.selenium.*
 import java.io.File
-import java.lang.RuntimeException
 import java.lang.reflect.Method
 import java.nio.file.Paths
 import java.util.*

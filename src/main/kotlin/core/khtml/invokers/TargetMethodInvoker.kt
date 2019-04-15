@@ -2,7 +2,7 @@ package core.khtml.invokers
 
 import core.khtml.conf.Configuration
 import core.khtml.utils.ReflectUtils.findMethod
-import java.util.AbstractList
+import java.util.*
 
 /**
  * Target method invoker.

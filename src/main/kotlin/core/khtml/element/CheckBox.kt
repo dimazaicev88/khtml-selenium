@@ -1,6 +1,5 @@
 package core.khtml.element
 
-import core.khtml.utils.WebDriverUtils
 import core.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 

@@ -1,10 +1,10 @@
 package core.khtml.ext
 
 import org.openqa.selenium.JavascriptExecutor
-import org.openqa.selenium.WebDriver
-import java.io.File
 import org.openqa.selenium.OutputType
 import org.openqa.selenium.TakesScreenshot
+import org.openqa.selenium.WebDriver
+import java.io.File
 import java.util.*
 
 
