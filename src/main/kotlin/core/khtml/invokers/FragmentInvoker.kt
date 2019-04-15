@@ -5,13 +5,12 @@ import core.khtml.annotations.Wait
 import core.khtml.build.XpathBuilder
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
-import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createProxy
-import core.khtml.utils.ReflectUtils.findAnnotation
 import core.khtml.utils.ReflectUtils.findFragmentTemplate
 import core.khtml.utils.ReflectUtils.fullXpathFromClass
 import core.khtml.utils.ReflectUtils.getDumpInfo
 import core.khtml.utils.ReflectUtils.getMethodParams
+import core.khtml.utils.ReflectUtils.isFindAnnotation
 import core.khtml.utils.ReflectUtils.replaceParams
 import core.khtml.utils.WebDriverUtils.dump
 import core.khtml.utils.WebDriverUtils.safeOperation
@@ -36,7 +35,7 @@ class FragmentInvoker : MethodInvoker {
         }
         config.target = methodInfo.method.declaringClass
 
-        if (findAnnotation(methodInfo.method.declaringClass, Fragment::class.java))
+        if (isFindAnnotation(methodInfo.method.declaringClass, Fragment::class.java))
             config.fullXpath.addAll(fullXpathFromClass(methodInfo.method.declaringClass!!))
 
         if (xpath.isNotEmpty())

@@ -1,8 +1,6 @@
 package core.khtml.element
 
-import core.khtml.dump.DumpInfo
 import core.khtml.ext.js
-import core.khtml.utils.WebDriverUtils.dump
 import core.khtml.utils.WebDriverUtils.execWebElementAction
 import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.waits.WaitCondition
@@ -79,10 +77,12 @@ open class CustomElement<T> constructor(
 
     override val isDisplayedOnJs: Boolean
         get() {
-            return driver.js("function isVisible(e) {\n" +
-                    "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
-                    "}; " +
-                    "return isVisible(arguments[0])",element).toString().toBoolean()
+            return driver.js(
+                "function isVisible(e) {\n" +
+                        "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
+                        "}; " +
+                        "return isVisible(arguments[0])", element
+            ).toString().toBoolean()
         }
 
     @Suppress("UNCHECKED_CAST")
@@ -95,6 +95,9 @@ open class CustomElement<T> constructor(
     override fun setValue(value: String): T {
         this.clear()
         this.sendKeys(value)
+        return this as T
+    }
+
     override fun removeClass(className: String): T {
         driver.js("arguments[0].classList.remove('$className');", element)
         return this as T
@@ -125,13 +128,6 @@ open class CustomElement<T> constructor(
             xpath = this.xpath,
             driver = this.driver
         ).waitCondition(condition)
-        return this as T
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun setValue(value: CharSequence): T {
-        element.clear()
-        element.sendKeys(value)
         return this as T
     }
 

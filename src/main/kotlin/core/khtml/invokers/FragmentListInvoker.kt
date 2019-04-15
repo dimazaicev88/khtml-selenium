@@ -13,6 +13,7 @@ import core.khtml.utils.ReflectUtils.findFragmentTemplate
 import core.khtml.utils.ReflectUtils.getDumpInfo
 
 import core.khtml.utils.ReflectUtils.getMethodParams
+import core.khtml.utils.ReflectUtils.isFindAnnotation
 import core.khtml.utils.ReflectUtils.replaceParams
 import core.khtml.utils.WebDriverUtils.dump
 import core.khtml.utils.WebDriverUtils.safeOperation
@@ -39,7 +40,7 @@ class FragmentListInvoker : MethodInvoker {
         if (config.fullXpath.size > 0) {
             config.fullXpath.last.position = config.instanceId
         }
-        if (ReflectUtils.findAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
+        if (isFindAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
             config.fullXpath.addAll(ReflectUtils.fullXpathFromClass(methodInfo.method.declaringClass))
         }
         config.fullXpath.add(FullXpath(xpath))

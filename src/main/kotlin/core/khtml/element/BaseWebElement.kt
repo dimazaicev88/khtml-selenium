@@ -44,7 +44,7 @@ interface BaseWebElement<T> {
 
     fun sendKeys(vararg charSequences: CharSequence): T
 
-    fun setValue(value: CharSequence): T
+    fun setValue(value: String): T
 
     fun clear(): T
 

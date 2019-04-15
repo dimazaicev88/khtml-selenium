@@ -11,11 +11,11 @@ import core.khtml.element.HtmlElement
 import core.khtml.ext.returnMethodType
 import core.khtml.utils.ReflectUtils.createCustomElement
 import core.khtml.utils.ReflectUtils.createHtmlElement
-import core.khtml.utils.ReflectUtils.findAnnotation
 import core.khtml.utils.ReflectUtils.fullXpathFromClass
 import core.khtml.utils.ReflectUtils.getMethodParams
 import core.khtml.utils.ReflectUtils.isCustomElement
 import core.khtml.utils.ReflectUtils.isCustomElementList
+import core.khtml.utils.ReflectUtils.isFindAnnotation
 import core.khtml.utils.ReflectUtils.isHtmlElement
 import core.khtml.utils.ReflectUtils.isHtmlElementList
 import core.khtml.utils.ReflectUtils.replaceParams
@@ -42,7 +42,7 @@ class ElementInvoker : MethodInvoker {
         if (tmpFullXpath.size > 0) {
             tmpFullXpath.last.position = config.instanceId
         }
-        if (findAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
+        if (isFindAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
             val fragmentXpath = buildXpath(fullXpathFromClass(methodInfo.method.declaringClass))
             tmpFullXpath.add(FullXpath(fragmentXpath))
         }

@@ -1,5 +1,6 @@
 package core.khtml.element
 
+import core.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 import java.io.File
 
@@ -7,7 +8,10 @@ class FileInput(private val strXpath: String, driver: WebDriver) : CustomElement
 
     fun setFileToUpload(fileName: String) {
         val filePath = getFilePath(fileName)
-        element.sendKeys(filePath)
+        execWebElementAction(strXpath, driver) {
+            it.sendKeys(filePath)
+        }
+
     }
 
     private fun getFilePath(fileName: String): String {
