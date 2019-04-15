@@ -3,27 +3,69 @@ package example
 import core.khtml.annotations.*
 import core.khtml.element.HtmlElement
 import core.khtml.element.Link
-import core.khtml.waits.WaitCondition
 
-@Fragment(".//body")
-interface AbstractFragment {
 
-    @Fragment(".//div")
-    fun someFragment(): SomeFragment
+@Page
+interface ElementInPage {
 
-    @Element(".//a']")
-    fun someLink(): Link
+    @Element(".//div[@class='elementInPage']")
+    fun elementInPage(): Link
 }
 
-interface SomeFragment {
+@Page
+interface FragmentInPage {
 
-    fun def(): Boolean {
-        return false
-    }
+    @Fragment(".//div[@class='fragmentInPage']")
+    fun fragmentInPage(): ResultFragment
 }
 
+interface ResultFragment {
 
+    @InjectContext
+    fun context(): HtmlElement
+}
 
+@Fragment(".//div[@class='contextFragmentContext']")
+interface ContextInFragment {
 
+    @InjectContext
+    fun context(): HtmlElement
+}
 
+@Fragment(".//div[@class='FragmentInFragment']")
+interface FragmentInFragment {
+
+    @Fragment(".//div[@class='fragmentInFragment']")
+    fun fragmentInFragment(): ResultFragment
+}
+
+interface InheritanceFragment : BaseFragmentLevel3 {
+
+    @InjectContext
+    fun context(): HtmlElement
+}
+
+@Fragment(".//div[@class='BaseFragmentLevel3']", inherited = true)
+interface BaseFragmentLevel3 : BaseFragmentLevel2 {
+
+}
+
+@Fragment(".//div[@class='BaseFragmentLevel2']", inherited = true)
+interface BaseFragmentLevel2 : BaseFragment {
+
+}
+
+@Fragment(".//div[@class='BaseFragment']", inherited = true)
+interface BaseFragment {
+
+}
+
+@Dump
+@Fragment(".//div[@class='DumpFragment']")
+interface DumpFragment {
+
+    @Fragment(".//ddd")
+    fun listFragments(): List<BaseFragment>
+
+}
 

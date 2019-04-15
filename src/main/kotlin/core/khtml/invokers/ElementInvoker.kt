@@ -19,9 +19,9 @@ import core.khtml.utils.ReflectUtils.isCustomElementList
 import core.khtml.utils.ReflectUtils.isHtmlElement
 import core.khtml.utils.ReflectUtils.isHtmlElementList
 import core.khtml.utils.ReflectUtils.replaceParams
-import core.khtml.utils.SearchType
-import core.khtml.utils.WebDriverUtils.searchWebElement
+import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.utils.WebDriverUtils.waitConditionFragment
+import org.openqa.selenium.By
 import org.openqa.selenium.WebDriverException
 import org.openqa.selenium.WebElement
 import java.util.*
@@ -34,13 +34,11 @@ class ElementInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template: String = methodInfo.method.getAnnotation(Element::class.java).xpath
         val xpath = replaceParams(template, mapParams)
-
         val tmpFullXpath = config.fullXpath.clone() as LinkedList<FullXpath>
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             tmpFullXpath.clear()
         }
-
         if (tmpFullXpath.size > 0) {
             tmpFullXpath.last.position = config.instanceId
         }
@@ -50,7 +48,6 @@ class ElementInvoker : MethodInvoker {
         }
 
         tmpFullXpath.add(FullXpath(xpath))
-
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, tmpFullXpath)
         }
@@ -70,9 +67,9 @@ class ElementInvoker : MethodInvoker {
                 )
             }
             isCustomElementList(methodInfo.method) -> {
-                val elements = searchWebElement(
-                    config.driver, buildXpath(config.fullXpath), SearchType.ALL
-                ) as List<WebElement>
+                val elements = safeOperation {
+                    config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
+                } as List<WebElement>
                 return (0 until elements.size).map {
                     createCustomElement(
                         methodInfo.method.returnMethodType!!,
@@ -82,9 +79,9 @@ class ElementInvoker : MethodInvoker {
                 }.toList()
             }
             isHtmlElementList(methodInfo.method) -> {
-                val elements = searchWebElement(
-                    config.driver, buildXpath(tmpFullXpath), SearchType.ALL
-                ) as List<WebElement>
+                val elements = safeOperation {
+                    config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
+                } as List<WebElement>
                 return (0 until elements.size).map {
                     createHtmlElement(
                         methodInfo.method.returnMethodType as Class<HtmlElement>,

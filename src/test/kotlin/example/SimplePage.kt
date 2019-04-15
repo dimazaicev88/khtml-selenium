@@ -4,29 +4,78 @@ import core.khtml.loader.KHTML
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.chrome.ChromeDriver
 import org.openqa.selenium.chrome.ChromeOptions
-import org.testng.Assert.assertTrue
+import org.testng.annotations.AfterClass
 import org.testng.annotations.Test
+import java.nio.file.Paths
 import java.util.*
 
 
 class SimplePage {
-    lateinit var mainPageElements: AbstractFragment
+    private lateinit var elementInPage: ElementInPage
+    private lateinit var fragmentInPage: FragmentInPage
+    private lateinit var contextInFragment: ContextInFragment
+    private lateinit var fragmentInFragment: FragmentInFragment
+    private lateinit var inheritanceFragment: InheritanceFragment
+    private lateinit var dumpFragment: ui.dump.DumpFragment
+
     private var driver: WebDriver
 
     init {
         this.driver = createDriver()
         KHTML.decorate(this, driver)
+        val path = Paths.get(System.getProperty("user.dir"), "dump")
+        System.setProperty("khtml.dump.dir", path.toString())
     }
 
+//    @Test
+//    fun elementInPage() {
+//        assertEquals(elementInPage.elementInPage().strXpath, ".//div[@class='elementInPage']")
+//    }
+//
+//    @Test
+//    fun fragmentInPage() {
+//        assertEquals(fragmentInPage.fragmentInPage().context().strXpath, ".//div[@class='fragmentInPage']")
+//    }
+//
+//    @Test
+//    fun contextInFragment() {
+//        assertEquals(contextInFragment.context().strXpath, ".//div[@class='moving']")
+//    }
+//
+//    @Test
+//    fun fragmentInFragment() {
+//        assertEquals(
+//            fragmentInFragment.fragmentInFragment().context().strXpath,
+//            ".//div[@class='FragmentInFragment']//div[@class='fragmentInFragment']"
+//        )
+//    }
+//
+//    @Test
+//    fun elementInFragment() {
+//        assertEquals(elementInPage.elementInPage().strXpath, ".//div[@class='moving']")
+//    }
+//
+//    @Test
+//    fun inheritanceFragment() {
+//        assertEquals(inheritanceFragment.context().strXpath, ".//div[@class='moving']")
+//    }
+
     @Test
-    fun existsLogoImg() {
-        driver.get("http://autotest.officemag.ru/services/sets/?ID=31850")
-        assertTrue(mainPageElements.someFragment().def())
+    fun dumpFragment() {
+        driver.get("https://www.officemag.ru/")
+        dumpFragment.innerFragment()
+    }
+
+
+    @AfterClass
+    fun afterClass() {
+        driver.close()
     }
 
     fun createDriver(): WebDriver {
         val options = ChromeOptions()
-        System.setProperty("webdriver.chrome.driver", System.getenv("WEBDRIVER_CHROME"))
+
+        System.setProperty("webdriver.chrome.driver", "F:\\google_driver/chromedriver.exe")
         val prefs = HashMap<String, Any>()
         prefs["download.prompt_for_download"] = "false"
         prefs["download.directory_upgrade"] = "true"
@@ -47,7 +96,6 @@ class SimplePage {
         driver.manage().window().maximize()
         return driver
     }
-
 }
 
 

@@ -3,6 +3,7 @@ package core.khtml.utils
 import com.google.common.collect.Lists
 import core.khtml.annotations.*
 import core.khtml.conf.FullXpath
+import core.khtml.dump.DumpInfo
 import core.khtml.element.CustomElement
 import core.khtml.element.HtmlElement
 import core.khtml.ext.isListReturn
@@ -151,12 +152,12 @@ object ReflectUtils {
             .any { it.name == method.name && Objects.deepEquals(it.parameterTypes, argsForSearchMethod) }
     }
 
-    fun findAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
+    fun isFindAnnotation(clazz: Class<*>, annotationClass: Class<out Annotation>): Boolean {
         if (clazz.isAnnotationPresent(annotationClass))
             return true
-        val list = ClassUtils.getAllInterfaces(clazz)
-        for (cls in list) {
-            if (findAnnotation(cls, annotationClass))
+        val listInterface = ClassUtils.getAllInterfaces(clazz)
+        for (cls in listInterface) {
+            if (isFindAnnotation(cls, annotationClass))
                 return true
         }
         return false
@@ -192,5 +193,22 @@ object ReflectUtils {
         findXpath(clazz)
         listXpath.reverse()
         return listXpath
+    }
+
+    fun getDumpInfo(clazz: Class<*>): DumpInfo? {
+        if (clazz.isAnnotationPresent(Dump::class.java)) {
+            val dumpAnnotation = clazz.getAnnotation(Dump::class.java)
+            return DumpInfo(
+                dir = if (dumpAnnotation.dirDump.isNotEmpty()) {
+                    dumpAnnotation.dirDump
+                } else {
+                    System.getProperty("khtml.dump.dir")
+                },
+                screenshot = dumpAnnotation.screenshot,
+                condition = dumpAnnotation.condition,
+                clazz = clazz
+            )
+        }
+        return null
     }
 }

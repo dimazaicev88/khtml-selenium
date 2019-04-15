@@ -1,55 +1,81 @@
 package core.khtml.element
 
+import core.khtml.dump.DumpInfo
 import core.khtml.ext.js
-import core.khtml.utils.SearchType
-import core.khtml.utils.WebDriverUtils.searchWebElement
+import core.khtml.utils.WebDriverUtils.dump
+import core.khtml.utils.WebDriverUtils.execWebElementAction
+import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.waits.WaitCondition
 import core.khtml.waits.WaitElement
 import org.openqa.selenium.*
 import org.openqa.selenium.interactions.Actions
 
-open class CustomElement<T> constructor(private val xpath: String, val driver: WebDriver) :
+open class CustomElement<T> constructor(
+    private val xpath: String,
+    val driver: WebDriver
+) :
     BaseWebElement<T>,
     BaseWaitElement<T> {
 
     override val element: WebElement
-        get() {
-            return searchWebElement(driver, xpath, SearchType.SINGLE) as WebElement
-        }
+        get() = safeOperation {
+            driver.findElement(By.xpath(xpath))
+        } as WebElement
 
     override val exists: Boolean
         get() = try {
-            element.isDisplayed
+            execWebElementAction(xpath, driver) {
+                it.isDisplayed
+            } as Boolean
         } catch (ignored: NoSuchElementException) {
             false
         }
 
+    @Suppress("CAST_NEVER_SUCCEEDS")
     override val source: String
-        get() = element.getAttribute("innerHTML")
+        get() = execWebElementAction(xpath, driver) {
+            it.getAttribute("innerHTML")
+        } as String
 
     override val location: Point
-        get() = element.location
+        get() = execWebElementAction(xpath, driver) {
+            it.location
+        } as Point
 
     override val text: String
-        get() = element.text
+        get() = execWebElementAction(xpath, driver) {
+            it.text
+        } as String
 
     override val tagName: String
-        get() = element.tagName
+        get() = execWebElementAction(xpath, driver) {
+            it.tagName
+        } as String
 
     override val isSelected: Boolean
-        get() = element.isSelected
+        get() = execWebElementAction(xpath, driver) {
+            it.isSelected
+        } as Boolean
 
     override val isEnabled: Boolean
-        get() = element.isEnabled
+        get() = execWebElementAction(xpath, driver) {
+            it.isEnabled
+        } as Boolean
 
     override val size: Dimension
-        get() = element.size
+        get() = execWebElementAction(xpath, driver) {
+            it.size
+        } as Dimension
 
     override val rect: Rectangle
-        get() = element.rect
+        get() = execWebElementAction(xpath, driver) {
+            it.size
+        } as Rectangle
 
     override val isDisplayed: Boolean
-        get() = element.isDisplayed
+        get() = execWebElementAction(xpath, driver) {
+            it.isDisplayed
+        } as Boolean
 
     override val isDisplayedOnJs: Boolean
         get() {
@@ -66,6 +92,9 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
     }
 
     @Suppress("UNCHECKED_CAST")
+    override fun setValue(value: String): T {
+        this.clear()
+        this.sendKeys(value)
     override fun removeClass(className: String): T {
         driver.js("arguments[0].classList.remove('$className');", element)
         return this as T
@@ -132,25 +161,33 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
 
     @Suppress("UNCHECKED_CAST")
     override fun click(): T {
-        element.click()
+        execWebElementAction(xpath, driver) {
+            it.click()
+        }
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun submit(): T {
-        element.submit()
+        execWebElementAction(xpath, driver) {
+            it.submit()
+        }
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun sendKeys(vararg keysToSend: CharSequence): T {
-        element.sendKeys(*keysToSend)
+        execWebElementAction(xpath, driver) {
+            it.sendKeys(*keysToSend)
+        }
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun clear(): T {
-        element.clear()
+        execWebElementAction(xpath, driver) {
+            it.clear()
+        }
         return this as T
     }
 
@@ -165,7 +202,9 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
     }
 
     override fun attr(name: String): String {
-        return if (element.getAttribute(name) == null) "" else element.getAttribute(name)
+        return execWebElementAction(xpath, driver) {
+            it.getAttribute(name)
+        } as String
     }
 
     override fun findElements(xpath: String): List<WebElement> {
@@ -177,6 +216,8 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
     }
 
     override fun cssValue(name: String): String {
-        return element.getCssValue(name)
+        return execWebElementAction(xpath, driver) {
+            it.getCssValue(name)
+        } as String
     }
 }

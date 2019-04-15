@@ -1,14 +1,14 @@
 package core.khtml.element
 
 import core.khtml.ext.js
-import core.khtml.utils.SearchType
-import core.khtml.utils.WebDriverUtils.searchWebElement
+import core.khtml.utils.WebDriverUtils.execWebElementAction
+import core.khtml.utils.WebDriverUtils.safeOperation
 import core.khtml.waits.WaitCondition
 import core.khtml.waits.WaitElement
 import org.openqa.selenium.*
 import org.openqa.selenium.interactions.Actions
 
-class HtmlElement(private var xpath: String, private val driver: WebDriver) : BaseWebElement<HtmlElement>,
+class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWebElement<HtmlElement>,
     BaseWaitElement<HtmlElement> {
 
     override val source: String
@@ -84,7 +84,7 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
     override fun wait(condition: WaitCondition, timeOut: Long): HtmlElement {
         WaitElement(
             timeOutInSeconds = timeOut,
-            xpath = this.xpath,
+            xpath = this.strXpath,
             driver = this.driver
         ).waitCondition(condition)
         return this
@@ -93,7 +93,7 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
     override fun waitCustomCondition(timeOut: Long, condition: (xpath: String) -> Boolean): HtmlElement {
         WaitElement(
             timeOutInSeconds = timeOut,
-            xpath = this.xpath,
+            xpath = this.strXpath,
             driver = this.driver
         ).waitCustomCondition { condition(this.xpath) }
         return this
@@ -119,8 +119,67 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
         return this
     }
 
+    override val source: String
+        get() = execWebElementAction(strXpath, driver) {
+            it.getAttribute("innerHTML")
+        } as String
+
+    override val element: WebElement
+        get() = safeOperation { driver.findElement(By.xpath(strXpath)) } as WebElement
+
+    override val location: Point
+        get() = execWebElementAction(strXpath, driver) {
+            it.location
+        } as Point
+
+    override val text: String
+        get() = execWebElementAction(strXpath, driver) {
+            it.text
+        } as String
+
+    override val tagName: String
+        get() = execWebElementAction(strXpath, driver) {
+            it.tagName
+        } as String
+
+    override val isSelected: Boolean
+        get() = execWebElementAction(strXpath, driver) {
+            it.isSelected
+        } as Boolean
+
+    override val isEnabled: Boolean
+        get() = execWebElementAction(strXpath, driver) {
+            it.isEnabled
+        } as Boolean
+
+    override val size: Dimension
+        get() = execWebElementAction(strXpath, driver) {
+            it.size
+        } as Dimension
+
+    override val rect: Rectangle
+        get() = execWebElementAction(strXpath, driver) {
+            it.size
+        } as Rectangle
+
+    override val isDisplayed: Boolean
+        get() = execWebElementAction(strXpath, driver) {
+            it.isDisplayed
+        } as Boolean
+
+    override val exists: Boolean
+        get() = try {
+            execWebElementAction(strXpath, driver) {
+                it.isDisplayed
+            } as Boolean
+        } catch (ignored: NoSuchElementException) {
+            false
+        }
+
     override fun attr(name: String): String {
-        return if (element.getAttribute(name) == null) "" else element.getAttribute(name)
+        return execWebElementAction(strXpath, driver) {
+            it.getAttribute(name)
+        } as String
     }
 
     override fun findElements(xpath: String): List<WebElement> {
@@ -132,21 +191,29 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
     }
 
     override fun cssValue(name: String): String {
-        return element.getCssValue(name)
+        return execWebElementAction(strXpath, driver) {
+            it.getCssValue(name)
+        } as String
     }
 
     override fun click(): HtmlElement {
-        element.click()
+        execWebElementAction(strXpath, driver) {
+            it.click()
+        }
         return this
     }
 
     override fun submit(): HtmlElement {
-        element.submit()
+        execWebElementAction(strXpath, driver) {
+            it.submit()
+        }
         return this
     }
 
-    override fun sendKeys(vararg charSequences: CharSequence): HtmlElement {
-        element.sendKeys(*charSequences)
+    override fun sendKeys(vararg keysToSend: CharSequence): HtmlElement {
+        execWebElementAction(strXpath, driver) {
+            it.sendKeys(*keysToSend)
+        }
         return this
     }
 
@@ -157,7 +224,9 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
     }
 
     override fun clear(): HtmlElement {
-        element.clear()
+        execWebElementAction(strXpath, driver) {
+            it.clear()
+        }
         return this
     }
 
