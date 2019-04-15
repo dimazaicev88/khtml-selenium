@@ -1,6 +1,5 @@
 package core.khtml.invokers
 
-import core.khtml.annotations.Dump
 import core.khtml.annotations.Element
 import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
@@ -8,10 +7,8 @@ import core.khtml.build.XpathBuilder.Companion.buildXpath
 import core.khtml.build.XpathBuilder.Companion.buildXpathWithLastPosition
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
-import core.khtml.dump.DumpInfo
 import core.khtml.element.HtmlElement
 import core.khtml.ext.returnMethodType
-import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createCustomElement
 import core.khtml.utils.ReflectUtils.createHtmlElement
 import core.khtml.utils.ReflectUtils.getMethodParams
