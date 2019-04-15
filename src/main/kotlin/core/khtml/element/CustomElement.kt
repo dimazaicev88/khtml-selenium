@@ -1,5 +1,6 @@
 package core.khtml.element
 
+import core.khtml.dump.DumpInfo
 import core.khtml.ext.js
 import core.khtml.utils.WebDriverUtils.execWebElementAction
 import core.khtml.utils.WebDriverUtils.safeOperation
@@ -10,7 +11,8 @@ import org.openqa.selenium.interactions.Actions
 
 open class CustomElement<T> constructor(
     private val xpath: String,
-    val driver: WebDriver
+    val driver: WebDriver,
+    private val dumpInfo: DumpInfo? = null
 ) :
     BaseWebElement<T>,
     BaseWaitElement<T> {
@@ -22,7 +24,7 @@ open class CustomElement<T> constructor(
 
     override val exists: Boolean
         get() = try {
-            execWebElementAction(xpath, driver) {
+            execWebElementAction(xpath, driver, dumpInfo) {
                 it.isDisplayed
             } as Boolean
         } catch (ignored: NoSuchElementException) {
@@ -31,47 +33,47 @@ open class CustomElement<T> constructor(
 
     @Suppress("CAST_NEVER_SUCCEEDS")
     override val source: String
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.getAttribute("innerHTML")
         } as String
 
     override val location: Point
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.location
         } as Point
 
     override val text: String
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.text
         } as String
 
     override val tagName: String
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.tagName
         } as String
 
     override val isSelected: Boolean
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.isSelected
         } as Boolean
 
     override val isEnabled: Boolean
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.isEnabled
         } as Boolean
 
     override val size: Dimension
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.size
         } as Dimension
 
     override val rect: Rectangle
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.size
         } as Rectangle
 
     override val isDisplayed: Boolean
-        get() = execWebElementAction(xpath, driver) {
+        get() = execWebElementAction(xpath, driver, dumpInfo) {
             it.isDisplayed
         } as Boolean
 
@@ -157,7 +159,7 @@ open class CustomElement<T> constructor(
 
     @Suppress("UNCHECKED_CAST")
     override fun click(): T {
-        execWebElementAction(xpath, driver) {
+        execWebElementAction(xpath, driver, dumpInfo) {
             it.click()
         }
         return this as T
@@ -165,7 +167,7 @@ open class CustomElement<T> constructor(
 
     @Suppress("UNCHECKED_CAST")
     override fun submit(): T {
-        execWebElementAction(xpath, driver) {
+        execWebElementAction(xpath, driver, dumpInfo) {
             it.submit()
         }
         return this as T
@@ -173,7 +175,7 @@ open class CustomElement<T> constructor(
 
     @Suppress("UNCHECKED_CAST")
     override fun sendKeys(vararg keysToSend: CharSequence): T {
-        execWebElementAction(xpath, driver) {
+        execWebElementAction(xpath, driver, dumpInfo) {
             it.sendKeys(*keysToSend)
         }
         return this as T
@@ -181,7 +183,7 @@ open class CustomElement<T> constructor(
 
     @Suppress("UNCHECKED_CAST")
     override fun clear(): T {
-        execWebElementAction(xpath, driver) {
+        execWebElementAction(xpath, driver, dumpInfo) {
             it.clear()
         }
         return this as T
@@ -198,7 +200,7 @@ open class CustomElement<T> constructor(
     }
 
     override fun attr(name: String): String {
-        return execWebElementAction(xpath, driver) {
+        return execWebElementAction(xpath, driver, dumpInfo) {
             it.getAttribute(name)
         } as String
     }
@@ -212,7 +214,7 @@ open class CustomElement<T> constructor(
     }
 
     override fun cssValue(name: String): String {
-        return execWebElementAction(xpath, driver) {
+        return execWebElementAction(xpath, driver, dumpInfo) {
             it.getCssValue(name)
         } as String
     }

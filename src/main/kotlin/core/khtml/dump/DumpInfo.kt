@@ -1,7 +1,9 @@
 package core.khtml.dump
 
+import java.lang.reflect.Method
+
 data class DumpInfo(
-    val clazz: Class<*>,
+    val method: Method,
     var dir: String = "",
     var screenshot: Boolean = true,
     var condition: DumpCondition = DumpCondition.FAIL

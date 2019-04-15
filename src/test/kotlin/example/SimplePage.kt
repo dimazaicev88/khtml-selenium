@@ -63,7 +63,7 @@ class SimplePage {
     @Test
     fun dumpFragment() {
         driver.get("https://www.officemag.ru/")
-        dumpFragment.innerFragment()
+        dumpFragment.innerFragment().elem().click()
     }
 
 

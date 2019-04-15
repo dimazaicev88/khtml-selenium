@@ -27,7 +27,7 @@ class FragmentListInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
-        val dumpInfo = getDumpInfo(methodInfo.method.declaringClass)
+        val dumpInfo = getDumpInfo(methodInfo.method)
 
         if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java) ||
             methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {

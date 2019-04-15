@@ -1,5 +1,6 @@
 package core.khtml.element
 
+import core.khtml.dump.DumpInfo
 import core.khtml.ext.js
 import core.khtml.utils.WebDriverUtils.execWebElementAction
 import core.khtml.utils.WebDriverUtils.safeOperation
@@ -8,11 +9,14 @@ import core.khtml.waits.WaitElement
 import org.openqa.selenium.*
 import org.openqa.selenium.interactions.Actions
 
-class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWebElement<HtmlElement>,
+class HtmlElement(
+    val strXpath: String, private val driver: WebDriver,
+    private val dumpInfo: DumpInfo? = null
+) : BaseWebElement<HtmlElement>,
     BaseWaitElement<HtmlElement> {
 
     override val source: String
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.getAttribute("innerHTML")
         } as String
 
@@ -20,48 +24,48 @@ class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWeb
         get() = safeOperation { driver.findElement(By.xpath(strXpath)) } as WebElement
 
     override val location: Point
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.location
         } as Point
 
     override val text: String
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.text
         } as String
 
     override val tagName: String
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.tagName
         } as String
 
     override val isSelected: Boolean
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.isSelected
         } as Boolean
 
     override val isEnabled: Boolean
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.isEnabled
         } as Boolean
 
     override val size: Dimension
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.size
         } as Dimension
 
     override val rect: Rectangle
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.size
         } as Rectangle
 
     override val isDisplayed: Boolean
-        get() = execWebElementAction(strXpath, driver) {
+        get() = execWebElementAction(strXpath, driver, dumpInfo) {
             it.isDisplayed
         } as Boolean
 
     override val exists: Boolean
         get() = try {
-            execWebElementAction(strXpath, driver) {
+            execWebElementAction(strXpath, driver, dumpInfo) {
                 it.isDisplayed
             } as Boolean
         } catch (ignored: NoSuchElementException) {
@@ -70,10 +74,12 @@ class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWeb
 
     override val isDisplayedOnJs: Boolean
         get() {
-            return driver.js("function isVisible(e) {\n" +
-                    "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
-                    "}; " +
-                    "return isVisible(arguments[0])",element).toString().toBoolean()
+            return driver.js(
+                "function isVisible(e) {\n" +
+                        "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
+                        "}; " +
+                        "return isVisible(arguments[0])", element
+            ).toString().toBoolean()
         }
 
     override fun addClass(className: String): HtmlElement {
@@ -140,9 +146,8 @@ class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWeb
     }
 
 
-
     override fun attr(name: String): String {
-        return execWebElementAction(strXpath, driver) {
+        return execWebElementAction(strXpath, driver, dumpInfo) {
             it.getAttribute(name)
         } as String
     }
@@ -156,27 +161,27 @@ class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWeb
     }
 
     override fun cssValue(name: String): String {
-        return execWebElementAction(strXpath, driver) {
+        return execWebElementAction(strXpath, driver, dumpInfo) {
             it.getCssValue(name)
         } as String
     }
 
     override fun click(): HtmlElement {
-        execWebElementAction(strXpath, driver) {
+        execWebElementAction(strXpath, driver, dumpInfo) {
             it.click()
         }
         return this
     }
 
     override fun submit(): HtmlElement {
-        execWebElementAction(strXpath, driver) {
+        execWebElementAction(strXpath, driver, dumpInfo) {
             it.submit()
         }
         return this
     }
 
     override fun sendKeys(vararg keysToSend: CharSequence): HtmlElement {
-        execWebElementAction(strXpath, driver) {
+        execWebElementAction(strXpath, driver, dumpInfo) {
             it.sendKeys(*keysToSend)
         }
         return this
@@ -189,7 +194,7 @@ class HtmlElement(val strXpath: String, private val driver: WebDriver) : BaseWeb
     }
 
     override fun clear(): HtmlElement {
-        execWebElementAction(strXpath, driver) {
+        execWebElementAction(strXpath, driver, dumpInfo) {
             it.clear()
         }
         return this

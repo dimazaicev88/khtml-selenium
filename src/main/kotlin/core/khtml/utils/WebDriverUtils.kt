@@ -36,10 +36,19 @@ object WebDriverUtils {
     fun execWebElementAction(
         xpath: String,
         driver: WebDriver,
+        dumpInfo: DumpInfo? = null,
         block: (element: WebElement) -> Any?
     ): Any? {
-        return safeOperation {
-            block(driver.findElement(By.xpath(xpath)))!!
+        return if (dumpInfo != null) {
+            dump(xpath, driver, dumpInfo) {
+                safeOperation {
+                    block(driver.findElement(By.xpath(xpath)))!!
+                }
+            }
+        } else {
+            safeOperation {
+                block(driver.findElement(By.xpath(xpath)))!!
+            }
         }
     }
 
@@ -70,10 +79,10 @@ object WebDriverUtils {
 
     fun dump(xpath: String, driver: WebDriver, dumpInfo: DumpInfo, block: () -> Any?): Any? {
         val fileName =
-            "${dumpInfo.clazz.canonicalName.replace(
+            "${dumpInfo.method.declaringClass.canonicalName.replace(
                 ".",
                 "_"
-            )}_${UUID.randomUUID().toString().substring(0, 5)}"
+            )}_${dumpInfo.method.name}_${UUID.randomUUID().toString().substring(0, 5)}"
 
         fun createDump() {
             driver.saveScreenshot(dumpInfo.dir, fileName)
@@ -89,6 +98,7 @@ object WebDriverUtils {
             try {
                 return block()
             } catch (e: ElementNotVisibleException) {
+                createDump()
                 throw e
             } catch (e: ElementNotInteractableException) {
                 createDump()

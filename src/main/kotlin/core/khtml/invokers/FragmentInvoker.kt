@@ -3,6 +3,7 @@ package core.khtml.invokers
 import core.khtml.annotations.Fragment
 import core.khtml.annotations.Wait
 import core.khtml.build.XpathBuilder
+import core.khtml.build.XpathBuilder.Companion.buildXpath
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
 import core.khtml.utils.ReflectUtils.createProxy
@@ -24,8 +25,7 @@ class FragmentInvoker : MethodInvoker {
         val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
-
-        val dumpInfo = getDumpInfo(methodInfo.method.declaringClass)
+        val dumpInfo = getDumpInfo(methodInfo.method)
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             config.fullXpath.clear()
@@ -41,9 +41,8 @@ class FragmentInvoker : MethodInvoker {
         if (xpath.isNotEmpty())
             config.fullXpath.add(FullXpath(xpath))
 
-        config.fullXpath.add(FullXpath(xpath))
         if (dumpInfo != null) {
-            val resultXpath = XpathBuilder.buildXpath(config.fullXpath)
+            val resultXpath = buildXpath(config.fullXpath)
             dump(resultXpath, driver = config.driver, dumpInfo = dumpInfo) {
                 safeOperation { config.driver.findElement(By.xpath(resultXpath)) }
             }

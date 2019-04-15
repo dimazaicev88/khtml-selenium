@@ -9,6 +9,7 @@ import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
 import core.khtml.element.HtmlElement
 import core.khtml.ext.returnMethodType
+import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createCustomElement
 import core.khtml.utils.ReflectUtils.createHtmlElement
 import core.khtml.utils.ReflectUtils.fullXpathFromClass
@@ -35,6 +36,7 @@ class ElementInvoker : MethodInvoker {
         val template: String = methodInfo.method.getAnnotation(Element::class.java).xpath
         val xpath = replaceParams(template, mapParams)
         val tmpFullXpath = config.fullXpath.clone() as LinkedList<FullXpath>
+        val dumpInfo = ReflectUtils.getDumpInfo(methodInfo.method)
 
         if (methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             tmpFullXpath.clear()
@@ -56,14 +58,16 @@ class ElementInvoker : MethodInvoker {
                 return createCustomElement(
                     methodInfo.method.returnType,
                     buildXpath(tmpFullXpath),
-                    config.driver
+                    config.driver,
+                    dumpInfo
                 )
             }
             isHtmlElement(methodInfo.method.returnType) -> {
                 return createHtmlElement(
                     methodInfo.method.returnType as Class<HtmlElement>,
                     buildXpath(tmpFullXpath),
-                    config.driver
+                    config.driver,
+                    dumpInfo
                 )
             }
             isCustomElementList(methodInfo.method) -> {
@@ -74,7 +78,8 @@ class ElementInvoker : MethodInvoker {
                     createCustomElement(
                         methodInfo.method.returnMethodType!!,
                         buildXpathWithLastPosition(tmpFullXpath, it + 1),
-                        config.driver
+                        config.driver,
+                        dumpInfo
                     )
                 }.toList()
             }
@@ -86,7 +91,8 @@ class ElementInvoker : MethodInvoker {
                     createHtmlElement(
                         methodInfo.method.returnMethodType as Class<HtmlElement>,
                         buildXpathWithLastPosition(tmpFullXpath, it + 1),
-                        config.driver
+                        config.driver,
+                        dumpInfo
                     )
                 }.toList()
             }

@@ -8,7 +8,6 @@ import org.openqa.selenium.WebElement
 
 class Radio(private val strXpath: String, driver: WebDriver) : CustomElement<Radio>(strXpath, driver) {
 
-
     //TODO добавить execWebElementAction
     private val buttons: List<WebElement>
         get() {

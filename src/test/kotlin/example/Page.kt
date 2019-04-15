@@ -45,17 +45,17 @@ interface InheritanceFragment : BaseFragmentLevel3 {
     fun context(): HtmlElement
 }
 
-@Fragment(".//div[@class='BaseFragmentLevel3']", inherited = true)
+@Fragment(".//div[@class='BaseFragmentLevel3']", inheritance = true)
 interface BaseFragmentLevel3 : BaseFragmentLevel2 {
 
 }
 
-@Fragment(".//div[@class='BaseFragmentLevel2']", inherited = true)
+@Fragment(".//div[@class='BaseFragmentLevel2']", inheritance = true)
 interface BaseFragmentLevel2 : BaseFragment {
 
 }
 
-@Fragment(".//div[@class='BaseFragment']", inherited = true)
+@Fragment(".//div[@class='BaseFragment']", inheritance = true)
 interface BaseFragment {
 
 }

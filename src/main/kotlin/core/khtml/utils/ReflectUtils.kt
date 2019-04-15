@@ -38,12 +38,21 @@ object ReflectUtils {
     fun isCustomElement(clazz: Class<*>): Boolean = CustomElement::class.java.isAssignableFrom(clazz)
 
     fun <T> createCustomElement(
-        clazz: Class<out T>, xpath: String, driver: WebDriver
-    ): T = newInstance(clazz, xpath, driver)
+        clazz: Class<out T>, xpath: String, driver: WebDriver, dumpInfo: DumpInfo? = null
+    ): T = if (dumpInfo != null) {
+        newInstance(clazz, xpath, driver, dumpInfo)
+    } else {
+        newInstance(clazz, xpath, driver)
+    }
+
 
     fun createHtmlElement(
-        clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver
-    ): HtmlElement = newInstance(clazz, xpath, driver)
+        clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver, dumpInfo: DumpInfo? = null
+    ): HtmlElement = if (dumpInfo != null) {
+        newInstance(clazz, xpath, driver, dumpInfo)
+    } else {
+        newInstance(clazz, xpath, driver)
+    }
 
     fun findMethod(cls: Class<*>, methodName: String, vararg parameterTypes: Class<*>): Method {
         return listOf(cls).plus(ClassUtils.getAllSuperclasses(cls)).plus(
@@ -195,9 +204,9 @@ object ReflectUtils {
         return listXpath
     }
 
-    fun getDumpInfo(clazz: Class<*>): DumpInfo? {
-        if (clazz.isAnnotationPresent(Dump::class.java)) {
-            val dumpAnnotation = clazz.getAnnotation(Dump::class.java)
+    fun getDumpInfo(method: Method): DumpInfo? {
+        if (method.declaringClass.isAnnotationPresent(Dump::class.java)) {
+            val dumpAnnotation = method.declaringClass.getAnnotation(Dump::class.java)
             return DumpInfo(
                 dir = if (dumpAnnotation.dirDump.isNotEmpty()) {
                     dumpAnnotation.dirDump
@@ -206,7 +215,7 @@ object ReflectUtils {
                 },
                 screenshot = dumpAnnotation.screenshot,
                 condition = dumpAnnotation.condition,
-                clazz = clazz
+                method = method
             )
         }
         return null
