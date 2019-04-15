@@ -6,20 +6,11 @@ import core.khtml.utils.WebDriverUtils.searchWebElement
 import core.khtml.waits.WaitCondition
 import core.khtml.waits.WaitElement
 import org.openqa.selenium.*
+import org.openqa.selenium.interactions.Actions
 
 open class CustomElement<T> constructor(private val xpath: String, val driver: WebDriver) :
     BaseWebElement<T>,
     BaseWaitElement<T> {
-
-    @Suppress("UNCHECKED_CAST")
-    override fun wait(condition: WaitCondition, timeOut: Long): T {
-        WaitElement(
-            timeOutInSeconds = timeOut,
-            xpath = this.xpath,
-            driver = this.driver
-        ).waitCondition(condition)
-        return this as T
-    }
 
     override val element: WebElement
         get() {
@@ -60,8 +51,56 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
     override val isDisplayed: Boolean
         get() = element.isDisplayed
 
+    override val isDisplayedOnJs: Boolean
+        get() {
+            return driver.js("function isVisible(e) {\n" +
+                    "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
+                    "}; " +
+                    "return isVisible(arguments[0])",element).toString().toBoolean()
+        }
+
     @Suppress("UNCHECKED_CAST")
-    override fun setValue(value: String): T {
+    override fun addClass(className: String): T {
+        driver.js("arguments[0].classList.add('$className');", element)
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun removeClass(className: String): T {
+        driver.js("arguments[0].classList.remove('$className');", element)
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun show(): T {
+        driver.js("arguments[0].style.display = 'block'", element)
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun hide(): T {
+        driver.js("arguments[0].style.display = 'none'")
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun move(): T {
+        Actions(driver).moveToElement(element).perform()
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun wait(condition: WaitCondition, timeOut: Long): T {
+        WaitElement(
+            timeOutInSeconds = timeOut,
+            xpath = this.xpath,
+            driver = this.driver
+        ).waitCondition(condition)
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun setValue(value: CharSequence): T {
         element.clear()
         element.sendKeys(value)
         return this as T
@@ -69,28 +108,25 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
 
     @Suppress("UNCHECKED_CAST")
     override fun jsChange(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('change', { bubbles: true }));")
+        driver.js("arguments[0].dispatchEvent(new Event('change', { bubbles: true }))", element)
         return this as T
-
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsBlur(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('blur', { bubbles: true }));")
+        driver.js("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", element)
         return this as T
-
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsClick(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('click', { bubbles: true }));")
+        driver.js("arguments[0].dispatchEvent(new Event('click', { bubbles: true }));", element)
         return this as T
-
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun jsFocus(): T {
-        driver.js(" var element=arguments[0]; element.dispatchEvent(new Event('focus', { bubbles: true }));")
+        driver.js("arguments[0].dispatchEvent(new Event('focus', { bubbles: true }));", element)
         return this as T
     }
 
@@ -124,12 +160,12 @@ open class CustomElement<T> constructor(private val xpath: String, val driver: W
             timeOutInSeconds = timeOut,
             xpath = this.xpath,
             driver = this.driver
-        ).waitCustomCondition(condition(this.xpath))
+        ).waitCustomCondition { condition(this.xpath) }
         return this as T
     }
 
     override fun attr(name: String): String {
-        return element.getAttribute(name)
+        return if (element.getAttribute(name) == null) "" else element.getAttribute(name)
     }
 
     override fun findElements(xpath: String): List<WebElement> {

@@ -38,11 +38,12 @@ class WaitElement constructor(
             WaitCondition.DISPLAY -> waitDisplay()
             WaitCondition.TEXT_PRESENT -> waitTextPresent()
             WaitCondition.INVISIBLE -> waitInvisible()
+            WaitCondition.NOT_EXITS -> waitNotExists()
         }
     }
 
-    fun waitCustomCondition(conditionValue: Any) {
-        fluentWait.until { conditionValue }
+    fun waitCustomCondition(conditionValue: () -> Boolean) {
+        fluentWait.until { conditionValue() }
     }
 
     private fun waitAjax() {
@@ -74,6 +75,10 @@ class WaitElement constructor(
 
     private fun waitInvisible() {
         fluentWait.until { !driver.findElement(By.xpath(xpath)).isDisplayed }
+    }
+
+    private fun waitNotExists() {
+        fluentWait.until { driver.findElements(By.xpath(xpath)).size == 0 }
     }
 
     private fun waitEnabled() {

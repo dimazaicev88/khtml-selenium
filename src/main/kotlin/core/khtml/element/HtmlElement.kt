@@ -6,47 +6,10 @@ import core.khtml.utils.WebDriverUtils.searchWebElement
 import core.khtml.waits.WaitCondition
 import core.khtml.waits.WaitElement
 import org.openqa.selenium.*
+import org.openqa.selenium.interactions.Actions
 
 class HtmlElement(private var xpath: String, private val driver: WebDriver) : BaseWebElement<HtmlElement>,
     BaseWaitElement<HtmlElement> {
-
-    override fun wait(condition: WaitCondition, timeOut: Long): HtmlElement {
-        WaitElement(
-            timeOutInSeconds = timeOut,
-            xpath = this.xpath,
-            driver = this.driver
-        ).waitCondition(condition)
-        return this
-    }
-
-    override fun waitCustomCondition(timeOut: Long, condition: (xpath: String) -> Boolean): HtmlElement {
-        WaitElement(
-            timeOutInSeconds = timeOut,
-            xpath = this.xpath,
-            driver = this.driver
-        ).waitCustomCondition(condition(this.xpath))
-        return this
-    }
-
-    override fun jsChange(): HtmlElement {
-        driver.js("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element)
-        return this
-    }
-
-    override fun jsBlur(): HtmlElement {
-        driver.js("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", element)
-        return this
-    }
-
-    override fun jsClick(): HtmlElement {
-        driver.js("arguments[0].dispatchEvent(new Event('click', { bubbles: true }));", element)
-        return this
-    }
-
-    override fun jsFocus(): HtmlElement {
-        driver.js("arguments[0].dispatchEvent(new Event('focus', { bubbles: true }));", element)
-        return this
-    }
 
     override val source: String
         get() = element.getAttribute("innerHTML")
@@ -85,8 +48,79 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
             false
         }
 
+    override val isDisplayedOnJs: Boolean
+        get() {
+            return driver.js("function isVisible(e) {\n" +
+                    "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
+                    "}; " +
+                    "return isVisible(arguments[0])",element).toString().toBoolean()
+        }
+
+    override fun addClass(className: String): HtmlElement {
+        driver.js("arguments[0].classList.add('$className');", element)
+        return this
+    }
+
+    override fun removeClass(className: String): HtmlElement {
+        driver.js("arguments[0].classList.remove('$className');", element)
+        return this
+    }
+
+    override fun move(): HtmlElement {
+        Actions(driver).moveToElement(element).perform()
+        return this
+    }
+
+    override fun show(): HtmlElement {
+        driver.js("arguments[0].style.display = 'block'", element)
+        return this
+    }
+
+    override fun hide(): HtmlElement {
+        driver.js("arguments[0].style.display = 'none'", element)
+        return this
+    }
+
+    override fun wait(condition: WaitCondition, timeOut: Long): HtmlElement {
+        WaitElement(
+            timeOutInSeconds = timeOut,
+            xpath = this.xpath,
+            driver = this.driver
+        ).waitCondition(condition)
+        return this
+    }
+
+    override fun waitCustomCondition(timeOut: Long, condition: (xpath: String) -> Boolean): HtmlElement {
+        WaitElement(
+            timeOutInSeconds = timeOut,
+            xpath = this.xpath,
+            driver = this.driver
+        ).waitCustomCondition { condition(this.xpath) }
+        return this
+    }
+
+    override fun jsChange(): HtmlElement {
+        driver.js("arguments[0].dispatchEvent(new Event('change', { bubbles: true }));", element)
+        return this
+    }
+
+    override fun jsBlur(): HtmlElement {
+        driver.js("arguments[0].dispatchEvent(new Event('blur', { bubbles: true }));", element)
+        return this
+    }
+
+    override fun jsClick(): HtmlElement {
+        driver.js("arguments[0].dispatchEvent(new Event('click', { bubbles: true }));", element)
+        return this
+    }
+
+    override fun jsFocus(): HtmlElement {
+        driver.js("arguments[0].dispatchEvent(new Event('focus', { bubbles: true }));", element)
+        return this
+    }
+
     override fun attr(name: String): String {
-        return element.getAttribute("name")
+        return if (element.getAttribute(name) == null) "" else element.getAttribute(name)
     }
 
     override fun findElements(xpath: String): List<WebElement> {
@@ -116,7 +150,7 @@ class HtmlElement(private var xpath: String, private val driver: WebDriver) : Ba
         return this
     }
 
-    override fun setValue(value: String): HtmlElement {
+    override fun setValue(value: CharSequence): HtmlElement {
         this.clear()
         this.sendKeys(value)
         return this

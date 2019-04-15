@@ -2,6 +2,7 @@ package core.khtml.utils
 
 import com.google.common.collect.Lists
 import core.khtml.annotations.*
+import core.khtml.conf.FullXpath
 import core.khtml.element.CustomElement
 import core.khtml.element.HtmlElement
 import core.khtml.ext.isListReturn
@@ -10,7 +11,6 @@ import core.khtml.invokers.*
 import org.apache.commons.lang3.ClassUtils
 import org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor
 import org.openqa.selenium.WebDriver
-import org.openqa.selenium.WebDriverException
 import java.lang.reflect.*
 import java.util.*
 
@@ -136,15 +136,7 @@ object ReflectUtils {
             method.isAnnotationPresent(Fragment::class.java) -> {
                 method.getAnnotation(Fragment::class.java).xpath
             }
-            method.returnType.isAnnotationPresent(Fragment::class.java) -> {
-                method.returnType.getAnnotation(Fragment::class.java).xpath
-            }
-            method.returnMethodType != null && method.returnMethodType!!.isAnnotationPresent(
-                Fragment::class.java
-            ) -> {
-                method.returnMethodType!!.getAnnotation(Fragment::class.java).xpath
-            }
-            else -> throw WebDriverException("Annotation Fragment not present")
+            else -> ""
         }
     }
 
@@ -168,5 +160,37 @@ object ReflectUtils {
                 return true
         }
         return false
+    }
+
+    fun fullXpathFromClass(clazz: Class<*>): LinkedList<FullXpath> {
+        val listXpath = LinkedList<FullXpath>()
+
+        if (clazz.isAnnotationPresent(Fragment::class.java)) {
+            listXpath.add(FullXpath(clazz.getAnnotation(Fragment::class.java).xpath.replaceFirst(".", "")))
+        }
+
+        fun findXpath(clazz: Class<*>) {
+            val list = ClassUtils.getAllInterfaces(clazz)
+            if (list.size != 0) {
+                val interfacesWithAnnotation = list.filter {
+                    it.isAnnotationPresent(Fragment::class.java) && it.getAnnotation(Fragment::class.java).inheritance
+                }
+
+                if (interfacesWithAnnotation.size > 1) {
+                    throw RuntimeException("More than one interface have a  annotation Fragment with the possibility of inheritance")
+                }
+
+                if (interfacesWithAnnotation.size == 1) {
+                    listXpath.add(FullXpath(interfacesWithAnnotation[0].getAnnotation(Fragment::class.java).xpath))
+                }
+
+                for (cls in list) {
+                    findXpath(cls)
+                }
+            }
+        }
+        findXpath(clazz)
+        listXpath.reverse()
+        return listXpath
     }
 }

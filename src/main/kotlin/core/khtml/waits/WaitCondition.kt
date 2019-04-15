@@ -7,5 +7,6 @@ enum class WaitCondition {
     AJAX,
     DISPLAY,
     TEXT_PRESENT,
-    INVISIBLE
+    INVISIBLE,
+    NOT_EXITS
 }

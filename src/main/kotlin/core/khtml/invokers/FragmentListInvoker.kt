@@ -1,11 +1,13 @@
 package core.khtml.invokers
 
+import core.khtml.annotations.Fragment
 import core.khtml.annotations.Page
 import core.khtml.annotations.Wait
 import core.khtml.build.XpathBuilder.Companion.buildXpath
 import core.khtml.conf.Configuration
 import core.khtml.conf.FullXpath
 import core.khtml.ext.returnMethodType
+import core.khtml.utils.ReflectUtils
 import core.khtml.utils.ReflectUtils.createProxy
 import core.khtml.utils.ReflectUtils.findFragmentTemplate
 import core.khtml.utils.ReflectUtils.getMethodParams
@@ -23,11 +25,15 @@ class FragmentListInvoker : MethodInvoker {
         val template = findFragmentTemplate(methodInfo.method)
         val xpath = replaceParams(template, mapParams)
 
-        if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java)) {
+        if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java) ||
+            methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
             config.fullXpath.clear()
         }
         if (config.fullXpath.size > 0) {
             config.fullXpath.last.position = config.instanceId
+        }
+        if (ReflectUtils.findAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
+            config.fullXpath.addAll(ReflectUtils.fullXpathFromClass(methodInfo.method.declaringClass))
         }
         config.fullXpath.add(FullXpath(xpath))
         config.instanceId = 0
@@ -41,9 +47,7 @@ class FragmentListInvoker : MethodInvoker {
             val typeGeneric = methodInfo.method.returnMethodType
                 ?: throw RuntimeException("Undefined generic type")
             createProxy(typeGeneric, ProxyHandler(config, instanceId = it))
-        }.toMutableList()
-        if (listElements.size == 1)
-            listElements.add(null)
+        }.toList()
         config.target = listElements
         config.proxyCache.computeIfAbsent(methodInfo.method.returnType) {
             createProxy(methodInfo.method.returnType, ProxyHandler(config))
