@@ -1,10 +1,13 @@
 package core.khtml.element
 
 
+import core.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 
-class Link(private val strXpath: String, driver: WebDriver) : CustomElement<Link>(strXpath, driver) {
+class Link(_xpath: String, driver: WebDriver) : CustomElement<Link>(_xpath, driver) {
 
     val reference: String
-        get() = element.getAttribute("href")
+        get() = execWebElementAction(xpath, driver) {
+            it.getAttribute("href")
+        } as String
 }

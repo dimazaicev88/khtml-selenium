@@ -1,13 +1,18 @@
 package core.khtml.element
 
+import core.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 
 
-class Image(private val strXpath: String, driver: WebDriver) : CustomElement<Image>(strXpath, driver) {
+class Image(_xpath: String, driver: WebDriver) : CustomElement<Image>(_xpath, driver) {
 
     val src: String
-        get() = element.getAttribute("src")
+        get() = execWebElementAction(xpath, driver) {
+            it.getAttribute("src")
+        } as String
 
     val alt: String
-        get() = element.getAttribute("alt")
+        get() = execWebElementAction(xpath, driver) {
+            it.getAttribute("alt")
+        } as String
 }

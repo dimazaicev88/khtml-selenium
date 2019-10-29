@@ -2,6 +2,7 @@ package core.khtml.element
 
 import core.khtml.waits.WaitCondition
 
+
 interface BaseWaitElement<T> {
 
     fun wait(condition: WaitCondition = WaitCondition.TO_CLICKABLE, timeOut: Long = 5): T

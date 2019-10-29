@@ -1,26 +1,34 @@
 package core.khtml.element
 
+import core.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 
-class CheckBox(private val strXpath: String, driver: WebDriver) : CustomElement<CheckBox>(strXpath, driver) {
+class CheckBox(_xpath: String, driver: WebDriver) : CustomElement<CheckBox>(_xpath, driver) {
 
-    fun select() {
+    fun select(): CheckBox {
         if (!isSelected) {
-            element.click()
+            execWebElementAction(xpath, driver) {
+                it.click()
+            }
         }
+        return this
     }
 
-    fun deselect() {
+    fun deselect(): CheckBox {
         if (isSelected) {
-            element.click()
+            execWebElementAction(xpath, driver) {
+                it.click()
+            }
         }
+        return this
     }
 
-    fun set(value: Boolean) {
+    fun set(value: Boolean): CheckBox {
         if (value) {
             select()
         } else {
             deselect()
         }
+        return this
     }
 }

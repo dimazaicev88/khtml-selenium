@@ -15,12 +15,9 @@ class ProxyHandler(private val configuration: Configuration, var instanceId: Int
                 method.invoke(this)
         }
         val handler: MethodInvoker?
-        val mapInvokers = getMapInvoker(method.declaringClass,method,args)
+        val mapInvokers = getMapInvoker(method.declaringClass, method, args)
         handler = mapInvokers[method]
         configuration.instanceId = instanceId
         return handler?.invoke(proxy, MethodInfo(method, args), configuration)
     }
 }
-
-
-//SimplePage$DefaultImpls

@@ -3,7 +3,7 @@ package core.khtml.element
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 
-class Select(private val strXpath: String, driver: WebDriver) : CustomElement<Select>(strXpath, driver) {
+class Select(_xpath: String, driver: WebDriver) : CustomElement<Select>(_xpath, driver) {
 
     private val select: org.openqa.selenium.support.ui.Select
         get() = org.openqa.selenium.support.ui.Select(element)
@@ -23,16 +23,19 @@ class Select(private val strXpath: String, driver: WebDriver) : CustomElement<Se
     val hasSelectedOption: Boolean
         get() = options.any { it.isSelected }
 
-    fun selectByVisibleText(text: String) {
+    fun selectByVisibleText(text: String): Select {
         select.selectByVisibleText(text)
+        return this
     }
 
-    fun selectByIndex(index: Int) {
+    fun selectByIndex(index: Int): Select {
         select.selectByIndex(index)
+        return this
     }
 
-    fun selectByValue(value: String) {
+    fun selectByValue(value: String): Select {
         select.selectByValue(value)
+        return this
     }
 
     fun deselectAll() {
