@@ -7,21 +7,19 @@ import khtml.invokers.ProxyHandler
 import khtml.utils.ReflectUtils.createProxy
 import khtml.utils.ReflectUtils.findAnnotation
 import org.openqa.selenium.WebDriver
+import org.springframework.context.ApplicationContext
 
 class KHTML {
 
     companion object {
-        fun decorate(page: Any, driver: WebDriver) {
+        fun decorate(page: Any, driver: WebDriver, testName: String? = null) {
             val fields = page::class.java.declaredFields
             fields.forEach { _field ->
                 if (_field.type.isInterface && (findAnnotation(_field.type, Page::class.java)
-                            || findAnnotation(_field.type, Fragment::class.java))
+                                || findAnnotation(_field.type, Fragment::class.java))
                 ) {
-                    val configuration =
-                        Configuration(driver = driver, parentClass = _field.type)
-                    val fieldValue = createProxy(_field.type,
-                        ProxyHandler(configuration)
-                    )
+                    val configuration = Configuration(driver = driver, parentClass = _field.type, testName = testName)
+                    val fieldValue = createProxy(_field.type, ProxyHandler(configuration))
                     configuration.proxyCache[_field.type] = fieldValue
                     _field.isAccessible = true
                     _field.set(page, fieldValue)

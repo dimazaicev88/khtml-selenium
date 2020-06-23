@@ -34,12 +34,12 @@ class WaitElement constructor(private val driver: WebDriver, var xpath: String =
         return this
     }
 
-    fun waitCustomCondition(timeOut: Long = 5, polling: Long = 100, fw: FluentWait<WebDriver>? = null, condition: () -> Boolean): WaitElement {
+    fun waitCustomCondition(timeOut: Long = 15, polling: Long = 20, fw: FluentWait<WebDriver>? = null, condition: () -> Boolean): WaitElement {
         getFluentWait(timeOut, polling, fw).until { condition() }
         return this
     }
 
-    fun waitAjax(timeOut: Long = 300, polling: Long = 30, fw: FluentWait<WebDriver>? = null): WaitElement {
+    fun waitJqueryXHR(timeOut: Long = 300, polling: Long = 30, fw: FluentWait<WebDriver>? = null): WaitElement {
         waitCustomCondition(timeOut, polling, fw) {
             driver.js(
                     "if(window.jQuery==null){\n" +
@@ -102,27 +102,5 @@ class WaitElement constructor(private val driver: WebDriver, var xpath: String =
             driver.js("return window.openHTTPs === 0").toString().toBoolean()
         }
         return this
-    }
-
-    companion object {
-
-        fun addInterceptorAJAX(driver: WebDriver) {
-            driver.js("if (window.openHTTPs === undefined) {\n" +
-                    "    (function () {\n" +
-                    "        var oldOpen = XMLHttpRequest.prototype.open;\n" +
-                    "        window.openHTTPs = 0;\n" +
-                    "        XMLHttpRequest.prototype.open = function (method, url, async, user, pass) {\n" +
-                    "            console.log(\"Url: \" + url);\n" +
-                    "            window.openHTTPs++;\n" +
-                    "            this.addEventListener(\"readystatechange\", function () {\n" +
-                    "                if (this.readyState === 4) {\n" +
-                    "                    window.openHTTPs--;\n" +
-                    "                }\n" +
-                    "            }, false);\n" +
-                    "            oldOpen.call(this, method, url, async, user, pass);\n" +
-                    "        }\n" +
-                    "    })(XMLHttpRequest);\n" +
-                    "}")
-        }
     }
 }

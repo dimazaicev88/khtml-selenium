@@ -2,11 +2,13 @@ package khtml.element
 
 import khtml.ext.js
 import khtml.ext.jsFindElement
+import khtml.utils.MapTests
 import khtml.utils.WebDriverUtils.safeOperation
 import khtml.waits.WaitElement
 import org.openqa.selenium.WebDriver
 
-class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, private val element: T) {
+class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, private val element: T,val testName: String? = null) {
+    private val mapTests = MapTests()
 
     val notExists: Boolean
         get() = safeOperation {
@@ -20,10 +22,10 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
 
     val isDisplayed: Boolean
         get() {
-            return driver.js("function isVisible(e) {\n" +
-                    "    return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );\n" +
-                    "}; " +
-                    "return isVisible(${driver.jsFindElement(xpath)}.singleNodeValue)").toString().toBoolean()
+            return driver.js("""function isVisible(e) {
+                if(e==null) return false;            
+            return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );
+        }; return isVisible(${driver.jsFindElement(xpath)}.singleNodeValue)""").toString().toBoolean()
         }
 
     @Suppress("UNCHECKED_CAST")
@@ -56,6 +58,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
             val text = safeOperation {
                 driver.js("return ${driver.jsFindElement(xpath)}.singleNodeValue.textContent")
             } as String?
+            mapTests.add(xpath, testName, driver)
             return if (text.isNullOrEmpty()) "" else text
         }
 
@@ -67,6 +70,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.display = 'block'")
         }
+        mapTests.add(xpath, testName, driver)
         return element
     }
 
@@ -78,6 +82,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.value = '$value'")
         }
+        mapTests.add(xpath, testName, driver)
         return element
     }
 
@@ -100,6 +105,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('change', { bubbles: true }))")
         }
+        mapTests.add(xpath, testName, driver)
         return element
     }
 
@@ -111,6 +117,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('blur', { bubbles: true }));")
         }
+        mapTests.add(xpath, testName, driver)
         return element
     }
 
@@ -123,8 +130,28 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.background='lightblue';")
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.click();")
         }
+        mapTests.add(xpath, testName, driver)
         return element
     }
+
+    @Suppress("UNCHECKED_CAST")
+    fun click(checkDisplay: Boolean = true): T {
+        if (checkDisplay)
+            WaitElement(driver, xpath).waitCustomCondition(polling = 50, timeOut = 5) {
+                this.exists && this.isDisplayed
+            }
+        else
+            WaitElement(driver, xpath).waitCustomCondition(polling = 50, timeOut = 5) {
+                this.exists
+            }
+        safeOperation {
+            driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.background='lightblue';")
+            driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.click();")
+        }
+        mapTests.add(xpath, testName, driver)
+        return element
+    }
+
 
     @Suppress("UNCHECKED_CAST")
     fun focus(): T {
@@ -148,6 +175,17 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("arguments[0].scrollIntoView(true);")
         }
+        return element
+    }
+
+    fun mouseOver(): T {
+        WaitElement(driver, xpath).waitCustomCondition(polling = 50, timeOut = 5) {
+            this.exists && this.isDisplayed
+        }
+        safeOperation {
+            driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('mouseover', { bubbles: true }));")
+        }
+        mapTests.add(xpath, testName, driver)
         return element
     }
 }

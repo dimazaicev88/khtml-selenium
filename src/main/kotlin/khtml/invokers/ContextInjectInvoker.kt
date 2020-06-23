@@ -20,12 +20,7 @@ class ContextInjectInvoker : MethodInvoker {
 
         val clazz = methodInfo.method.declaringClass
         if (clazz.isAnnotationPresent(Fragment::class.java)) {
-            tmpFullXpath.add(
-                FullXpath(
-                    clazz.getAnnotation(Fragment::class.java).xpath,
-                    methodInfo.method.declaringClass
-                )
-            )
+            tmpFullXpath.add(FullXpath(clazz.getAnnotation(Fragment::class.java).xpath, methodInfo.method.declaringClass))
         }
 
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {

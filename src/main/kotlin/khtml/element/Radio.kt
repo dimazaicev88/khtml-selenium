@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 
 
-class Radio(_xpath: String, driver: WebDriver) : CustomElement<Radio>(_xpath, driver) {
+class Radio(_xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Radio>(_xpath, driver, testName) {
 
     private val buttons: List<WebElement>
         get() {
@@ -32,6 +32,10 @@ class Radio(_xpath: String, driver: WebDriver) : CustomElement<Radio>(_xpath, dr
         val matchingButton = buttons.first { value == it.getAttribute("value") }
         selectButton(matchingButton)
         return this
+    }
+
+    fun isSelected(value: String): Boolean {
+        return buttons.first { value == it.getAttribute("value") }.isSelected
     }
 
     fun selectByIndex(index: Int) {

@@ -1,26 +1,36 @@
 package khtml.element
 
-import khtml.utils.WebDriverUtils
+import ext.localStorage
+import khtml.ext.js
+import khtml.ext.refresh
+import khtml.utils.MapTests
 import khtml.utils.WebDriverUtils.execWebElementAction
+import khtml.utils.WebDriverUtils.safeOperation
 import khtml.waits.WaitElement
 import org.openqa.selenium.*
 import org.openqa.selenium.interactions.Actions
+import org.openqa.selenium.support.ui.FluentWait
 import java.lang.Thread.sleep
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
-abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
+abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val testName: String? = null) {
+    private val mapTests = MapTests()
     val wait = WaitElement(driver = driver, xpath = xpath)
+    val actionId: AtomicInteger = AtomicInteger(0)
+    private val _object = Any()
 
     val jse: JsExecutor<T>
-        get() = JsExecutor(xpath, driver, this as T)
+        get() = JsExecutor(xpath, driver, this as T, testName)
 
     val element: WebElement
-        get() = WebDriverUtils.safeOperation {
+        get() = safeOperation {
             driver.findElement(By.xpath(xpath))
         } as WebElement
 
     val exists: Boolean
         get() {
-            val elements = WebDriverUtils.safeOperation {
+            val elements = safeOperation {
                 driver.findElements(By.xpath(xpath))
             } as List<WebElement>
             return elements.isNotEmpty()
@@ -28,7 +38,7 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     val notExists: Boolean
         get() {
-            val elements = WebDriverUtils.safeOperation {
+            val elements = safeOperation {
                 driver.findElements(By.xpath(xpath))
             } as List<WebElement>
             return elements.isEmpty()
@@ -47,6 +57,7 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     val text: String
         get() = execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.text
         } as String
 
@@ -57,11 +68,13 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     val isSelected: Boolean
         get() = execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.isSelected
         } as Boolean
 
     val isEnabled: Boolean
         get() = execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.isEnabled
         } as Boolean
 
@@ -88,16 +101,33 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     @Suppress("UNCHECKED_CAST")
     fun move(): T {
-        Actions(driver).moveToElement(element).perform()
+        val action = Actions(driver)
+        safeOperation {
+            mapTests.add(xpath, testName, driver)
+            action.moveToElement(element).perform()
+        }
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     fun click(): T {
         execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.click()
         }
         return this as T
+    }
+
+    fun removeItemInLocalStorage(key: String) {
+        synchronized(_object) {
+            driver.localStorage.removeItem(key)
+        }
+    }
+
+    fun updateLocalStorage(key: String, value: String) {
+        synchronized(_object) {
+            driver.js("""localStorage.setItem('$key', "$value");""")
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -110,6 +140,7 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     fun attr(name: String): String {
         return execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.getAttribute(name)
         } as String? ?: ""
     }
@@ -124,6 +155,7 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
 
     fun cssValue(name: String): String {
         return execWebElementAction(xpath, driver) {
+            mapTests.add(xpath, testName, driver)
             it.getCssValue(name)
         } as String? ?: ""
     }
@@ -135,16 +167,25 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
         }
     }
 
-    fun repeatClick(repeat: Int, timeOut: Long, refresh: Boolean, condition: () -> Boolean): T {
+    fun repeatClick(repeat: Int = 15, timeOut: Long = 2, refresh: Boolean = true, polling: Long = 1000, condition: () -> Boolean): T {
+        val wait = FluentWait(driver)
+                .withTimeout(Duration.ofSeconds(timeOut))
+                .pollingEvery(Duration.ofMillis(polling))
+                .ignoreAll(
+                        listOf(
+                                org.openqa.selenium.NoSuchElementException::class.java,
+                                StaleElementReferenceException::class.java
+                        )
+                )
         for (i in (0..repeat)) {
             try {
                 execWebElementAction(xpath, driver) {
                     it.click()
                 }
-                wait.waitCustomCondition(timeOut, 500, condition = condition)
-                break
+                wait.until { condition() }
+                return this as T
             } catch (ignore: Exception) {
-                if (refresh) driver.navigate().refresh()
+                if (refresh) driver.refresh()
             }
         }
         return this as T

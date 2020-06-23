@@ -1,13 +1,12 @@
 package khtml.utils
 
 import com.google.common.collect.Lists
-import khtml.annotations.*
+import khtml.annotations.Fragment
 import khtml.conf.FullXpath
 import khtml.element.CustomElement
 import khtml.element.HtmlElement
 import khtml.ext.isListReturn
 import khtml.ext.returnMethodType
-import khtml.invokers.*
 import khtml.invokers.*
 import org.apache.commons.lang3.ClassUtils
 import org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor
@@ -30,20 +29,19 @@ object ReflectUtils {
         if (clazz.isMemberClass && !Modifier.isStatic(clazz.modifiers)) {
             val outerClass = clazz.declaringClass
             val outerObject = outerClass.newInstance()
-            return invokeConstructor<T>(clazz, *Lists.asList(outerObject, args).toTypedArray())
+            return invokeConstructor(clazz, *Lists.asList(outerObject, args).toTypedArray())
         }
-        return invokeConstructor<T>(clazz, *args)
+        return invokeConstructor(clazz, *args)
     }
 
     fun isCustomElement(clazz: Class<*>): Boolean = CustomElement::class.java.isAssignableFrom(clazz)
 
     fun <T> createCustomElement(
-            clazz: Class<out T>, xpath: String, driver: WebDriver
-    ): T = newInstance(clazz, xpath, driver)
+            clazz: Class<out T>, xpath: String, driver: WebDriver, testName: String? = null
+    ): T = newInstance(clazz, xpath, driver, testName)
 
-    fun createHtmlElement(clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver
-    ): HtmlElement =
-        newInstance(clazz, xpath, driver)
+    fun createHtmlElement(clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver, testName: String? = null
+    ): HtmlElement = newInstance(clazz, xpath, driver, testName)
 
     fun findMethod(cls: Class<*>, methodName: String, vararg parameterTypes: Class<*>): Method {
         return listOf(cls).plus(ClassUtils.getAllSuperclasses(cls)).plus(
@@ -73,7 +71,7 @@ object ReflectUtils {
         ClassUtils.getAllInterfaces(clazz).map { listMethods.addAll(it.declaredMethods.toMutableList()) }
         listMethods.forEach {
             when {
-                it.isAnnotationPresent(Element::class.java) -> {
+                it.isAnnotationPresent(khtml.annotations.Element::class.java) -> {
                     mapInvoker[it] = ElementInvoker()
                 }
                 it.isListReturn && (it.isAnnotationPresent(Fragment::class.java) || (it.returnMethodType != null && it.returnMethodType!!.isAnnotationPresent(
@@ -88,13 +86,13 @@ object ReflectUtils {
                 -> {
                     mapInvoker[it] = FragmentInvoker()
                 }
-                it.isAnnotationPresent(InjectContext::class.java) -> {
+                it.isAnnotationPresent(khtml.annotations.InjectContext::class.java) -> {
                     mapInvoker[it] = ContextInjectInvoker()
                 }
-                it.isAnnotationPresent(InjectWebDriver::class.java) -> {
+                it.isAnnotationPresent(khtml.annotations.InjectWebDriver::class.java) -> {
                     mapInvoker[it] = WebDriverInjectInvoker()
                 }
-                it.isAnnotationPresent(JSCall::class.java) -> {
+                it.isAnnotationPresent(khtml.annotations.JSCall::class.java) -> {
                     mapInvoker[it] = JSCallInvoker()
                 }
                 isDefaultMethod(method, args) -> {
@@ -110,10 +108,10 @@ object ReflectUtils {
             mapParam.entries.stream()
                     .reduce(template, { a, b -> a.replace("#{" + b.key + "}", b.value) }, { s, _ -> s })
 
-    private fun getParameterName(element: AnnotatedElement): String = element.getAnnotation(Param::class.java).value
+    private fun getParameterName(element: AnnotatedElement): String = element.getAnnotation(khtml.annotations.Param::class.java).value
 
     private fun hasParameterAnnotation(element: AnnotatedElement): Boolean =
-            element.isAnnotationPresent(Param::class.java)
+            element.isAnnotationPresent(khtml.annotations.Param::class.java)
 
     fun getMethodParams(method: Method, args: Array<out Any>?): Map<String, String> {
         if (args.isNullOrEmpty()) return hashMapOf()
@@ -170,22 +168,14 @@ object ReflectUtils {
         val listXpath = LinkedList<FullXpath>()
 
         if (clazz.isAnnotationPresent(Fragment::class.java)) {
-            listXpath.add(
-                FullXpath(
-                    clazz.getAnnotation(Fragment::class.java).xpath.replaceFirst(
-                        ".",
-                        ""
-                    ), clazz
-                )
-            )
+            listXpath.add(FullXpath(clazz.getAnnotation(Fragment::class.java).xpath.replaceFirst(".", ""), clazz))
         }
 
         fun findXpath(clazz: Class<*>) {
             val list = ClassUtils.getAllInterfaces(clazz)
             if (list.size != 0) {
                 val interfacesWithAnnotation = list.filter {
-                    it.isAnnotationPresent(Fragment::class.java) && it.getAnnotation(
-                        Fragment::class.java).inheritance
+                    it.isAnnotationPresent(Fragment::class.java) && it.getAnnotation(Fragment::class.java).inheritance
                 }
 
                 if (interfacesWithAnnotation.size > 1) {
@@ -193,13 +183,7 @@ object ReflectUtils {
                 }
 
                 if (interfacesWithAnnotation.size == 1) {
-                    listXpath.add(
-                        FullXpath(
-                            interfacesWithAnnotation[0].getAnnotation(
-                                Fragment::class.java
-                            ).xpath, clazz
-                        )
-                    )
+                    listXpath.add(FullXpath(interfacesWithAnnotation[0].getAnnotation(Fragment::class.java).xpath, clazz))
                 }
 
                 for (cls in list) {

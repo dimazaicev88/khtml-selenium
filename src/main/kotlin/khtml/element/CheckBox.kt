@@ -1,14 +1,15 @@
 package khtml.element
 
+import khtml.utils.MapTests
 import khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 
-class CheckBox(_xpath: String, driver: WebDriver) : CustomElement<CheckBox>(_xpath, driver) {
+class CheckBox(_xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<CheckBox>(_xpath, driver, testName) {
 
     fun select(): CheckBox {
         if (!isSelected) {
             execWebElementAction(xpath, driver) {
-                it.click()
+                JsExecutor(xpath, driver, this).click()
             }
         }
         return this
@@ -17,7 +18,7 @@ class CheckBox(_xpath: String, driver: WebDriver) : CustomElement<CheckBox>(_xpa
     fun deselect(): CheckBox {
         if (isSelected) {
             execWebElementAction(xpath, driver) {
-                it.click()
+                JsExecutor(xpath, driver, this).click()
             }
         }
         return this

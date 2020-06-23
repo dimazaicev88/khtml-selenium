@@ -38,12 +38,7 @@ class FragmentInvoker : MethodInvoker {
             config.fullXpath.addAll(fullXpathFromClass(methodInfo.method.declaringClass!!))
 
         if (xpath.isNotEmpty())
-            config.fullXpath.add(
-                FullXpath(
-                    xpath,
-                    clazz = methodInfo.method.declaringClass
-                )
-            )
+            config.fullXpath.add(FullXpath(xpath, clazz = methodInfo.method.declaringClass))
 
         if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)

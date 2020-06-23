@@ -2,12 +2,10 @@ package khtml.invokers
 
 import khtml.annotations.Element
 import khtml.annotations.Fragment
-import khtml.annotations.Wait
 import khtml.build.XpathBuilder.Companion.buildXpath
 import khtml.build.XpathBuilder.Companion.buildXpathWithLastPosition
 import khtml.conf.Configuration
 import khtml.conf.FullXpath
-import khtml.element.HtmlElement
 import khtml.ext.returnMethodType
 import khtml.utils.ReflectUtils.createCustomElement
 import khtml.utils.ReflectUtils.createHtmlElement
@@ -51,17 +49,12 @@ class ElementInvoker : MethodInvoker {
 
         if (findAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
             val fragmentXpath = buildXpath(fullXpathFromClass(methodInfo.method.declaringClass))
-            tmpFullXpath.add(
-                FullXpath(
-                    fragmentXpath,
-                    clazz = methodInfo.method.declaringClass
-                )
-            )
+            tmpFullXpath.add(FullXpath(fragmentXpath, clazz = methodInfo.method.declaringClass))
         }
 
         tmpFullXpath.add(FullXpath(xpath, clazz = methodInfo.method.declaringClass))
 
-        if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
+        if (methodInfo.method.isAnnotationPresent(khtml.annotations.Wait::class.java)) {
             waitConditionFragment(methodInfo.method, config.driver, tmpFullXpath)
         }
         when {
@@ -69,14 +62,16 @@ class ElementInvoker : MethodInvoker {
                 return createCustomElement(
                         methodInfo.method.returnType,
                         buildXpath(tmpFullXpath),
-                        config.driver
+                        config.driver,
+                        config.testName
                 )
             }
             isHtmlElement(methodInfo.method.returnType) -> {
                 return createHtmlElement(
-                        methodInfo.method.returnType as Class<HtmlElement>,
+                        methodInfo.method.returnType as Class<khtml.element.HtmlElement>,
                         buildXpath(tmpFullXpath),
-                        config.driver
+                        config.driver,
+                        config.testName
                 )
             }
             isCustomElementList(methodInfo.method) -> {
@@ -87,7 +82,8 @@ class ElementInvoker : MethodInvoker {
                     createCustomElement(
                             methodInfo.method.returnMethodType!!,
                             buildXpathWithLastPosition(tmpFullXpath, it + 1),
-                            config.driver
+                            config.driver,
+                            config.testName
                     )
                 }.toList()
             }
@@ -97,7 +93,7 @@ class ElementInvoker : MethodInvoker {
                 } as List<WebElement>
                 return (elements.indices).map {
                     createHtmlElement(
-                            methodInfo.method.returnMethodType as Class<HtmlElement>,
+                            methodInfo.method.returnMethodType as Class<khtml.element.HtmlElement>,
                             buildXpathWithLastPosition(tmpFullXpath, it + 1),
                             config.driver
                     )

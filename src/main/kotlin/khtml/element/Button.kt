@@ -1,13 +1,13 @@
 package khtml.element
 
-import khtml.utils.WebDriverUtils.execWebElementAction
+import khtml.utils.WebDriverUtils
 import org.openqa.selenium.WebDriver
 
-open class Button(_xpath: String, driver: WebDriver) : CustomElement<Button>(_xpath, driver) {
+open class Button(_xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Button>(_xpath, driver, testName) {
 
     @Suppress("UNCHECKED_CAST")
     fun submit(): Button {
-        execWebElementAction(xpath, driver) {
+        WebDriverUtils.execWebElementAction(xpath, driver) {
             it.submit()
         }
         return this

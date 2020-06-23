@@ -1,8 +1,6 @@
 package khtml.utils
 
-import khtml.annotations.Wait
 import khtml.build.XpathBuilder.Companion.buildXpath
-import khtml.conf.FullXpath
 import khtml.waits.WaitCondition
 import khtml.waits.WaitElement
 import org.openqa.selenium.By
@@ -18,8 +16,7 @@ object WebDriverUtils {
     private const val sleepFor = 500L
 
     fun safeOperation(block: () -> Any?): Any? {
-        val end =
-            laterBy(TimeUnit.SECONDS.toMillis(timeWait))
+        val end = laterBy(TimeUnit.SECONDS.toMillis(timeWait))
         var lastException: StaleElementReferenceException
         do {
             try {
@@ -54,21 +51,20 @@ object WebDriverUtils {
         return System.currentTimeMillis() < endInMillis
     }
 
-    fun waitConditionFragment(method: Method, driver: WebDriver, fullXpath: LinkedList<FullXpath>) {
-        val conditionAnnotation = method.getAnnotation(Wait::class.java).condition
-        val pollingAnnotation = method.getAnnotation(Wait::class.java).polling
-        val timeAnnotation = method.getAnnotation(Wait::class.java).time
+    fun waitConditionFragment(method: Method, driver: WebDriver, fullXpath: LinkedList<khtml.conf.FullXpath>) {
+        val conditionAnnotation = method.getAnnotation(khtml.annotations.Wait::class.java).condition
+        val pollingAnnotation = method.getAnnotation(khtml.annotations.Wait::class.java).polling
+        val timeAnnotation = method.getAnnotation(khtml.annotations.Wait::class.java).time
         val waitElement = WaitElement(driver, xpath = buildXpath(fullXpath))
         when (conditionAnnotation) {
             WaitCondition.TO_CLICKABLE -> waitElement.waitClickable(timeAnnotation, pollingAnnotation)
             WaitCondition.ENABLED -> waitElement.waitEnabled(timeAnnotation, pollingAnnotation)
             WaitCondition.DISABLED -> waitElement.waitDisabled(timeAnnotation, pollingAnnotation)
-            WaitCondition.AJAX -> waitElement.waitAjax(timeAnnotation, pollingAnnotation)
+            WaitCondition.AJAX -> waitElement.waitJqueryXHR(timeAnnotation, pollingAnnotation)
             WaitCondition.DISPLAY -> waitElement.waitDisabled(timeAnnotation, pollingAnnotation)
             WaitCondition.TEXT_PRESENT -> waitElement.waitTextPresent(timeAnnotation, pollingAnnotation)
             WaitCondition.INVISIBLE -> waitElement.waitInvisible(timeAnnotation, pollingAnnotation)
             WaitCondition.NOT_EXITS -> waitElement.waitNotExists(timeAnnotation, pollingAnnotation)
-            WaitCondition.ALL_AJAX -> waitElement.waitAllAjax(timeAnnotation, pollingAnnotation)
         }
     }
 }
