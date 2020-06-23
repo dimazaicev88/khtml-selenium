@@ -1,9 +1,9 @@
 package example
 
-import core.khtml.annotations.Element
-import core.khtml.annotations.Fragment
-import core.khtml.annotations.Param
-import core.khtml.element.Link
+import khtml.annotations.Element
+import khtml.annotations.Fragment
+import khtml.annotations.Param
+import khtml.element.Link
 
 @Fragment(".//header[contains(@class,'masthead')]")
 interface Portfolio {

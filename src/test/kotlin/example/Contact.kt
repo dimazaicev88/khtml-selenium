@@ -1,11 +1,11 @@
 package example
 
-import core.khtml.annotations.Element
-import core.khtml.annotations.Fragment
-import core.khtml.annotations.InjectContext
-import core.khtml.element.Button
-import core.khtml.element.HtmlElement
-import core.khtml.element.TextInput
+import khtml.annotations.Element
+import khtml.annotations.Fragment
+import khtml.annotations.InjectContext
+import khtml.element.Button
+import khtml.element.HtmlElement
+import khtml.element.TextInput
 
 @Fragment(".//section[@id='contact']")
 interface Contact {

@@ -1,9 +1,8 @@
 package example
 
-import core.khtml.annotations.*
-import core.khtml.element.HtmlElement
-import core.khtml.element.Link
-import core.khtml.waits.WaitCondition
+import khtml.annotations.Element
+import khtml.annotations.Fragment
+import khtml.element.Link
 
 @Fragment(".//body")
 interface AbstractFragment {

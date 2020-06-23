@@ -1,9 +1,9 @@
 package example
 
-import core.khtml.annotations.Element
-import core.khtml.annotations.Fragment
-import core.khtml.context.FragmentContext
-import core.khtml.element.Button
+import khtml.annotations.Element
+import khtml.annotations.Fragment
+import khtml.context.FragmentContext
+import khtml.element.Button
 
 @Fragment(".//section[@id='about']")
 interface About : FragmentContext {
