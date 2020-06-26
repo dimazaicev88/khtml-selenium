@@ -1,8 +1,8 @@
 package khtml.utils
 
-import ext.jsonStrToObject
-import ext.toFile
-import ext.toJson
+//import ext.jsonStrToObject
+//import ext.toFile
+//import ext.toJson
 import org.openqa.selenium.WebDriver
 
 class MapTests {
@@ -37,13 +37,13 @@ class MapTests {
 //        }
     }
 
-    fun loadMap(): MapTests? {
-        return "F:\\work\\officemag-ui-tests\\src\\test\\resources\\maps\\maps.json".toFile().readText().jsonStrToObject(MapTests::class.java)
-    }
-
-    fun saveMap(map: MapTests) {
-        "F:\\work\\officemag-ui-tests\\src\\test\\resources\\maps\\maps.json".toFile().writeText(map.toJson())
-    }
+//    fun loadMap(): MapTests? {
+//        return "F:\\work\\officemag-ui-tests\\src\\test\\resources\\maps\\maps.json".toFile().readText().jsonStrToObject(MapTests::class.java)
+//    }
+//
+//    fun saveMap(map: MapTests) {
+//        "F:\\work\\officemag-ui-tests\\src\\test\\resources\\maps\\maps.json".toFile().writeText(map.toJson())
+//    }
 }
 
 data class Maps(

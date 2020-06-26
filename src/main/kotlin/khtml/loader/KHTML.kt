@@ -7,7 +7,6 @@ import khtml.invokers.ProxyHandler
 import khtml.utils.ReflectUtils.createProxy
 import khtml.utils.ReflectUtils.findAnnotation
 import org.openqa.selenium.WebDriver
-import org.springframework.context.ApplicationContext
 
 class KHTML {
 
