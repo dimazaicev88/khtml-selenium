@@ -1,10 +1,10 @@
 package example
 
-import khtml.annotations.Element
-import khtml.annotations.Fragment
-import khtml.annotations.Param
-import khtml.context.FragmentContext
-import khtml.element.Link
+import org.intsite.khtml.annotations.Element
+import org.intsite.khtml.annotations.Fragment
+import org.intsite.khtml.annotations.Param
+import org.intsite.khtml.context.FragmentContext
+import org.intsite.khtml.element.Link
 
 @Fragment(".//nav[@id='mainNav']")
 interface MainNav : FragmentContext {

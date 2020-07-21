@@ -1,9 +1,9 @@
 package example
 
-import khtml.annotations.Element
-import khtml.annotations.Fragment
-import khtml.context.FragmentContext
-import khtml.element.Image
+import org.intsite.khtml.annotations.Element
+import org.intsite.khtml.annotations.Fragment
+import org.intsite.khtml.context.FragmentContext
+import org.intsite.khtml.element.Image
 import org.openqa.selenium.WebElement
 
 @Fragment(".//header[contains(@class,'masthead')]")
