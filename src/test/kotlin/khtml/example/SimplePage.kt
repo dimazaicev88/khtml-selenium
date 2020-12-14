@@ -1,4 +1,4 @@
-package example
+package khtml.example
 
 
 import org.intsite.khtml.loader.KHTML
@@ -20,7 +20,7 @@ class SimplePage {
     }
 
     @Test
-    fun existsLogoImg() {
+    fun testExistsLogoImg() {
         driver.get("http://autotest.officemag.ru/services/sets/?ID=31850")
         assertTrue(mainPageElements.someFragment().def())
     }

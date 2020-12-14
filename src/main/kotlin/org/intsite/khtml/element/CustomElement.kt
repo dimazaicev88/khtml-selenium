@@ -3,7 +3,6 @@ package org.intsite.khtml.element
 import org.intsite.khtml.ext.js
 import org.intsite.khtml.ext.localStorage
 import org.intsite.khtml.ext.refresh
-import org.intsite.khtml.utils.MapTests
 import org.intsite.khtml.utils.WebDriverUtils.execWebElementAction
 import org.intsite.khtml.utils.WebDriverUtils.safeOperation
 import org.intsite.khtml.waits.WaitElement
@@ -15,7 +14,6 @@ import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
 abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val testName: String? = null) {
-    private val mapTests = MapTests()
     val wait = WaitElement(driver = driver, xpath = xpath)
     val actionId: AtomicInteger = AtomicInteger(0)
     private val _object = Any()
@@ -57,7 +55,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
 
     val text: String
         get() = execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.text
         } as String
 
@@ -68,13 +65,11 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
 
     val isSelected: Boolean
         get() = execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.isSelected
         } as Boolean
 
     val isEnabled: Boolean
         get() = execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.isEnabled
         } as Boolean
 
@@ -103,7 +98,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     fun move(): T {
         val action = Actions(driver)
         safeOperation {
-            mapTests.add(xpath, testName, driver)
             action.moveToElement(element).perform()
         }
         return this as T
@@ -112,7 +106,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     @Suppress("UNCHECKED_CAST")
     fun click(): T {
         execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.click()
         }
         return this as T
@@ -140,7 +133,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
 
     fun attr(name: String): String {
         return execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.getAttribute(name)
         } as String? ?: ""
     }
@@ -155,7 +147,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
 
     fun cssValue(name: String): String {
         return execWebElementAction(xpath, driver) {
-            mapTests.add(xpath, testName, driver)
             it.getCssValue(name)
         } as String? ?: ""
     }

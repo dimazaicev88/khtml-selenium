@@ -4,7 +4,7 @@ import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpath
 import org.intsite.khtml.waits.WaitCondition
 import org.intsite.khtml.waits.WaitElement
-import org.intsite.khtml.conf.FullXpath
+import org.intsite.khtml.conf.XpathItem
 import org.openqa.selenium.By
 import org.openqa.selenium.StaleElementReferenceException
 import org.openqa.selenium.WebDriver
@@ -53,11 +53,11 @@ object WebDriverUtils {
         return System.currentTimeMillis() < endInMillis
     }
 
-    fun waitConditionFragment(method: Method, driver: WebDriver, fullXpath: LinkedList<FullXpath>) {
+    fun waitConditionFragment(method: Method, driver: WebDriver, xpathItem: LinkedList<XpathItem>) {
         val conditionAnnotation = method.getAnnotation(Wait::class.java).condition
         val pollingAnnotation = method.getAnnotation(Wait::class.java).polling
         val timeAnnotation = method.getAnnotation(Wait::class.java).time
-        val waitElement = WaitElement(driver, xpath = buildXpath(fullXpath))
+        val waitElement = WaitElement(driver, xpath = buildXpath(xpathItem))
         when (conditionAnnotation) {
             WaitCondition.TO_CLICKABLE -> waitElement.waitClickable(timeAnnotation, pollingAnnotation)
             WaitCondition.ENABLED -> waitElement.waitEnabled(timeAnnotation, pollingAnnotation)

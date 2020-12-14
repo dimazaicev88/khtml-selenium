@@ -5,62 +5,116 @@ import org.intsite.khtml.annotations.Page
 import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpath
 import org.intsite.khtml.conf.Configuration
-import org.intsite.khtml.conf.FullXpath
+import org.intsite.khtml.conf.XpathItem
+import org.intsite.khtml.ext.*
+import org.intsite.khtml.ext.isFragment
 import org.intsite.khtml.ext.returnMethodType
+import org.intsite.khtml.utils.MethodWrapper
 import org.intsite.khtml.utils.ReflectUtils.createProxy
-import org.intsite.khtml.utils.ReflectUtils.findAnnotation
-import org.intsite.khtml.utils.ReflectUtils.findFragmentTemplate
-import org.intsite.khtml.utils.ReflectUtils.fullXpathFromClass
 import org.intsite.khtml.utils.ReflectUtils.getMethodParams
 import org.intsite.khtml.utils.ReflectUtils.replaceParams
 import org.intsite.khtml.utils.WebDriverUtils.safeOperation
 import org.intsite.khtml.utils.WebDriverUtils.waitConditionFragment
 import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
+import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
 
 class FragmentListInvoker : MethodInvoker {
 
+
     @Suppress("UNCHECKED_CAST")
-    override fun invoke(proxy: Any, methodInfo: MethodInfo, config: Configuration): Any? {
-        val mapParams = getMethodParams(methodInfo.method, methodInfo.args)
-        val template = findFragmentTemplate(methodInfo.method)
-        val xpath = replaceParams(template, mapParams)
+    override fun invoke(proxy: Any, methodWrapper: MethodWrapper, config: Configuration): Any? {
+        val mapParams = getMethodParams(methodWrapper.method, methodWrapper.args)
+        val mapGenerics = config.parentClass.mapGeneric
+        val parentClassForMethod = methodWrapper.method.declaringClass
+        val proxyClass: Class<*>
 
-        if (methodInfo.method.declaringClass.isAnnotationPresent(Page::class.java) ||
-                methodInfo.method.declaringClass.isAssignableFrom(config.parentClass)) {
-            config.fullXpath.clear()
+        if (
+            methodWrapper.method.declaringClass.isAnnotationPresent(Page::class.java) ||
+            methodWrapper.method.declaringClass.isAssignableFrom(config.parentClass)
+        ) {
+            config.xpathItems.clear()
         }
 
-        if (config.fullXpath.size > 0 && config.fullXpath.last.clazz == methodInfo.method.declaringClass) {
-            config.fullXpath.removeLast()
+        if (config.xpathItems.size > 0 && config.xpathItems.last.clazz == methodWrapper.method.declaringClass) {
+            config.xpathItems.removeLast()
         }
 
-        if (config.fullXpath.size > 0) {
-            config.fullXpath.last.position = config.instanceId
+        if (config.xpathItems.size > 0) {
+            config.xpathItems.last.position = config.instanceId
         }
 
-        if (findAnnotation(methodInfo.method.declaringClass, Fragment::class.java)) {
-            config.fullXpath.addAll(fullXpathFromClass(methodInfo.method.declaringClass))
-        }
+        if (config.parentClass.isGenericInterface) {
+            val classForMethod = methodWrapper.method.declaringClass
+            val methodReturnedClass = methodWrapper.method.returnMethodType!!
 
-        config.fullXpath.add(FullXpath(xpath, clazz = methodInfo.method.declaringClass))
-        config.instanceId = 0
+            /**
+             * Если интерфейс не Generic
+             */
+            if (!mapGenerics.containsKey(classForMethod)) {
+                proxyClass = methodReturnedClass
+                if (!methodReturnedClass.isFragment) {
+                    throw RuntimeException("${methodReturnedClass.simpleName} is not a Fragment")
+                }
+                config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+                config.xpathItems.addAll(methodReturnedClass.allXpathItemsByClass)
+            } else {
+                proxyClass = mapGenerics.getValue(methodReturnedClass)
+                config.xpathItems.addAll(methodReturnedClass.allXpathItemsByClass)
+                config.xpathItems.add(
+                    XpathItem(
+                        replaceParams(methodWrapper.method.xpathThisMethod, mapParams),
+                        mapGenerics.getValue(methodReturnedClass)
+                    )
+                )
+            }
+            config.instanceId = 0
 
-        if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
-            waitConditionFragment(methodInfo.method, config.driver, config.fullXpath)
-        }
-        val elements = safeOperation {
-            config.driver.findElements(By.xpath(buildXpath(config.fullXpath)))
-        } as List<WebElement>
-        val listElements = (elements.indices).map {
-            val typeGeneric = methodInfo.method.returnMethodType
+            if (methodWrapper.method.isAnnotationPresent(Wait::class.java)) {
+                waitConditionFragment(methodWrapper.method, config.driver, config.xpathItems)
+            }
+            val elements = safeOperation {
+                config.driver.findElements(By.xpath(buildXpath(config.xpathItems)))
+            } as List<WebElement>
+            val listElements = (elements.indices).map {
+                createProxy(proxyClass, ProxyHandler(config, instanceId = it))
+            }.toList()
+            config.target = listElements
+            config.proxyCache.computeIfAbsent(methodWrapper.method.returnType) {
+                createProxy(methodWrapper.method.returnType, ProxyHandler(config))
+            }
+            return config.proxyCache[methodWrapper.method.returnType]
+        } else {
+            if (methodWrapper.method.declaringClass.isFragment) {
+                config.xpathItems.addAll(methodWrapper.method.declaringClass.allXpathItemsByClass)
+            }
+
+            val fullXpath = methodWrapper.method.xpathForFragment.map {
+                XpathItem(
+                    replaceParams(it.xpath, mapParams),
+                    it.clazz,
+                    it.position
+                )
+            }
+            config.xpathItems.addAll(fullXpath)
+            config.instanceId = 0
+
+            if (methodWrapper.method.isAnnotationPresent(Wait::class.java)) {
+                waitConditionFragment(methodWrapper.method, config.driver, config.xpathItems)
+            }
+            val elements = safeOperation {
+                config.driver.findElements(By.xpath(buildXpath(config.xpathItems)))
+            } as List<WebElement>
+            val listElements = (elements.indices).map {
+                val typeGeneric = methodWrapper.method.returnMethodType
                     ?: throw RuntimeException("Undefined generic type")
-            createProxy(typeGeneric, ProxyHandler(config, instanceId = it))
-        }.toList()
-        config.target = listElements
-        config.proxyCache.computeIfAbsent(methodInfo.method.returnType) {
-            createProxy(methodInfo.method.returnType, ProxyHandler(config))
+                createProxy(typeGeneric, ProxyHandler(config, instanceId = it))
+            }.toList()
+            config.target = listElements
+            config.proxyCache.computeIfAbsent(methodWrapper.method.returnType) {
+                createProxy(methodWrapper.method.returnType, ProxyHandler(config))
+            }
+            return config.proxyCache[methodWrapper.method.returnType]
         }
-        return config.proxyCache[methodInfo.method.returnType]
     }
 }

@@ -1,6 +1,7 @@
 package org.intsite.khtml.invokers
 
 import org.intsite.khtml.conf.Configuration
+import org.intsite.khtml.utils.MethodWrapper
 import org.intsite.khtml.utils.ReflectUtils.getMapInvoker
 import java.lang.reflect.InvocationHandler
 import java.lang.reflect.Method
@@ -18,6 +19,6 @@ class ProxyHandler(private val configuration: Configuration, var instanceId: Int
         val mapInvokers = getMapInvoker(method.declaringClass, method, args)
         handler = mapInvokers[method]
         configuration.instanceId = instanceId
-        return handler?.invoke(proxy, MethodInfo(method, args), configuration)
+        return handler?.invoke(proxy, MethodWrapper(method, args), configuration)
     }
 }

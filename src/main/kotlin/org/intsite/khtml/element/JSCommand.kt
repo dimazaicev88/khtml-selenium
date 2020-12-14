@@ -2,13 +2,11 @@ package org.intsite.khtml.element
 
 import org.intsite.khtml.ext.js
 import org.intsite.khtml.ext.jsFindElement
-import org.intsite.khtml.utils.MapTests
 import org.intsite.khtml.utils.WebDriverUtils.safeOperation
 import org.intsite.khtml.waits.WaitElement
 import org.openqa.selenium.WebDriver
 
 class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, private val element: T,val testName: String? = null) {
-    private val mapTests = MapTests()
 
     val notExists: Boolean
         get() = safeOperation {
@@ -58,7 +56,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
             val text = safeOperation {
                 driver.js("return ${driver.jsFindElement(xpath)}.singleNodeValue.textContent")
             } as String?
-            mapTests.add(xpath, testName, driver)
+            
             return if (text.isNullOrEmpty()) "" else text
         }
 
@@ -70,7 +68,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.display = 'block'")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -82,7 +80,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.value = '$value'")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -105,7 +103,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('change', { bubbles: true }))")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -117,7 +115,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('blur', { bubbles: true }));")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -130,7 +128,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.background='lightblue';")
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.click();")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -148,7 +146,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.style.background='lightblue';")
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.click();")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 
@@ -185,7 +183,7 @@ class JsExecutor<T>(private val xpath: String, private val driver: WebDriver, pr
         safeOperation {
             driver.js("${driver.jsFindElement(xpath)}.singleNodeValue.dispatchEvent(new Event('mouseover', { bubbles: true }));")
         }
-        mapTests.add(xpath, testName, driver)
+        
         return element
     }
 }

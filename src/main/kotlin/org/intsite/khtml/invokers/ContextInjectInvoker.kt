@@ -4,27 +4,36 @@ import org.intsite.khtml.annotations.Fragment
 import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpath
 import org.intsite.khtml.conf.Configuration
-import org.intsite.khtml.conf.FullXpath
+import org.intsite.khtml.conf.XpathItem
 import org.intsite.khtml.element.HtmlElement
+import org.intsite.khtml.utils.MethodWrapper
 import org.intsite.khtml.utils.WebDriverUtils.waitConditionFragment
 import java.util.*
 
 class ContextInjectInvoker : MethodInvoker {
 
-    override fun invoke(proxy: Any, methodInfo: MethodInfo, config: Configuration): Any {
-        val tmpFullXpath = config.fullXpath.clone() as LinkedList<FullXpath>
+    override fun invoke(proxy: Any, methodWrapper: MethodWrapper, config: Configuration): Any {
+        val tmpFullXpath = config.xpathItems.clone() as LinkedList<XpathItem>
 
-        if (config.fullXpath.size > 0) {
-            config.fullXpath.last.position = config.instanceId
+        if (config.xpathItems.size > 0) {
+            config.xpathItems.last.position = config.instanceId
         }
 
-        val clazz = methodInfo.method.declaringClass
-        if (clazz.isAnnotationPresent(Fragment::class.java)) {
-            tmpFullXpath.add(FullXpath(clazz.getAnnotation(Fragment::class.java).xpath, methodInfo.method.declaringClass))
+        val clazz = methodWrapper.method.declaringClass
+        if (
+            clazz.isAnnotationPresent(Fragment::class.java) && (tmpFullXpath.isEmpty() ||
+                    (tmpFullXpath.isNotEmpty() && clazz != tmpFullXpath.last.clazz))
+        ) {
+            tmpFullXpath.add(
+                XpathItem(
+                    clazz.getAnnotation(Fragment::class.java).xpath,
+                    methodWrapper.method.declaringClass
+                )
+            )
         }
 
-        if (methodInfo.method.isAnnotationPresent(Wait::class.java)) {
-            waitConditionFragment(methodInfo.method, config.driver, tmpFullXpath)
+        if (methodWrapper.method.isAnnotationPresent(Wait::class.java)) {
+            waitConditionFragment(methodWrapper.method, config.driver, tmpFullXpath)
         }
 
         return HtmlElement(buildXpath(tmpFullXpath), config.driver)

@@ -1,4 +1,4 @@
-package example
+package khtml.example
 
 import org.intsite.khtml.annotations.Element
 import org.intsite.khtml.annotations.Fragment

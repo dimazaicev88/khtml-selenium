@@ -62,8 +62,8 @@ fun <T : CustomElement<T>> T.waitCompleteAjaxAfter(timeOut: Long = 15, func: (T)
     }
 }
 
-fun <T : CustomElement<T>> T.waitAjax(timeOut: Long = 15): T {
-    wait.waitCustomCondition(timeOut = timeOut) {
+fun <T : CustomElement<T>> T.waitAjax(polling: Long = 50, timeOut: Long = 15): T {
+    wait.waitCustomCondition(timeOut = timeOut, polling) {
         driver.js(
             """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
                          return ajaxState.complete===true && ajaxState.success===true"""
