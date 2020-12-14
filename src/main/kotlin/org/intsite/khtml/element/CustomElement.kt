@@ -1,8 +1,11 @@
 package org.intsite.khtml.element
 
+import org.intsite.khtml.build.XpathBuilder
+import org.intsite.khtml.conf.XpathItem
 import org.intsite.khtml.ext.js
 import org.intsite.khtml.ext.localStorage
 import org.intsite.khtml.ext.refresh
+import org.intsite.khtml.utils.ReflectUtils
 import org.intsite.khtml.utils.WebDriverUtils.execWebElementAction
 import org.intsite.khtml.utils.WebDriverUtils.safeOperation
 import org.intsite.khtml.waits.WaitElement
@@ -92,6 +95,14 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
             } catch (e: NoSuchElementException) {
                 false
             }
+        }
+
+    val parent: T
+        get() {
+            val tmpXpath = XpathBuilder.buildXpath(
+                    listOf(XpathItem(xpath, this::class.java), XpathItem("parent::*", this::class.java))
+            )
+            return ReflectUtils.newInstance(this::class.java, tmpXpath, driver) as T
         }
 
     @Suppress("UNCHECKED_CAST")

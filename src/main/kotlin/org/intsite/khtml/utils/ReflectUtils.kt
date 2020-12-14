@@ -22,7 +22,7 @@ object ReflectUtils {
         handler
     ) as T
 
-    private fun <T> newInstance(clazz: Class<T>, vararg args: Any?): T {
+    fun <T> newInstance(clazz: Class<T>, vararg args: Any?): T {
         if (clazz.isMemberClass && !Modifier.isStatic(clazz.modifiers)) {
             val outerClass = clazz.declaringClass
             val outerObject = outerClass.newInstance()
