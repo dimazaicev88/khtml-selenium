@@ -1,3 +1,5 @@
+[![](https://jitpack.io/v/dimazaicev88/khtml-selenium.svg)](https://jitpack.io/#dimazaicev88/khtml-selenium)
+
 # Аннотации
 
 **@Page** 
