@@ -39,7 +39,7 @@ internal val Method.xpathForFragment: LinkedList<XpathItem>
         return when {
             this.isAnnotationPresent(Fragment::class.java) -> {
                 val xpathItems = LinkedList<XpathItem>()
-                xpathItems.add(XpathItem(this.getAnnotation(Fragment::class.java).xpath, this.returnMethodType!!))
+                xpathItems.add(XpathItem(this.getAnnotation(Fragment::class.java).xpath, this.declaringClass))
                 xpathItems
             }
             !this.isListReturn && this.returnType?.isFragment!! -> {

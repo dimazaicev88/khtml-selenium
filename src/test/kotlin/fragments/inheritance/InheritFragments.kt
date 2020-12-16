@@ -1,4 +1,4 @@
-package khtml.fragments.inheritance
+package fragments.inheritance
 
 import org.intsite.khtml.loader.KHTML
 import org.mockito.Mockito

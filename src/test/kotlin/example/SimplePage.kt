@@ -1,4 +1,4 @@
-package khtml.example
+package example
 
 
 import org.intsite.khtml.loader.KHTML

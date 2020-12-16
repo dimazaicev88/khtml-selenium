@@ -1,4 +1,4 @@
-package khtml.element
+package element
 
 import org.testng.annotations.Test
 

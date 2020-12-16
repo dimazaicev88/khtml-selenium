@@ -1,8 +1,8 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm' version "1.4.21"
 }
-
-version '1.0.2'
+group = 'me.admin'
+version='1.0.2'
 
 repositories {
     mavenCentral()
@@ -19,8 +19,11 @@ dependencies {
 }
 
 test {
-    useTestNG() {
+    useTestNG()
 
+    //we want display the following test events
+    testLogging {
+        events "PASSED", "FAILED", "SKIPPED"
     }
 }
 

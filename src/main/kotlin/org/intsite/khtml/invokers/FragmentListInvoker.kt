@@ -53,11 +53,15 @@ class FragmentListInvoker : MethodInvoker {
              */
             if (!mapGenerics.containsKey(classForMethod)) {
                 proxyClass = methodReturnedClass
-                if (!methodReturnedClass.isFragment) {
-                    throw RuntimeException("${methodReturnedClass.simpleName} is not a Fragment")
-                }
                 config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
-                config.xpathItems.addAll(methodReturnedClass.allXpathItemsByClass)
+                /**
+                 * Добавляем Xpath для метода и возвращаемого класса
+                 */
+                config.xpathItems.addAll(
+                        methodWrapper.method.xpathForFragment.map {
+                            XpathItem(replaceParams(it.xpath, mapParams), it.clazz, it.position)
+                        }
+                )
             } else {
                 proxyClass = mapGenerics.getValue(methodReturnedClass)
                 config.xpathItems.addAll(methodReturnedClass.allXpathItemsByClass)

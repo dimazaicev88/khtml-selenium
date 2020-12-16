@@ -1,4 +1,4 @@
-package khtml.fragments.generic
+package fragments.generic
 
 import org.intsite.khtml.annotations.*
 import org.intsite.khtml.element.*
@@ -8,6 +8,15 @@ interface CatalogBrandsPage : CatalogProducts<CatalogBrands>, BaseHeader<HeaderM
 
     fun giftInfo(): GiftInfo
 
+    @Fragment(".//span[@id='brands']")
+    fun listBrands(): List<BrandLink>
+
+    interface BrandLink {
+
+        @Element(".//a[@id='brandLink']")
+        fun link(): Link
+
+    }
 }
 
 interface HeaderMainPage : BaseHeaderItem {

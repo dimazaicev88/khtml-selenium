@@ -1,4 +1,4 @@
-package khtml.fragments.context
+package fragments.context
 
 import org.intsite.khtml.annotations.Fragment
 import org.intsite.khtml.annotations.InjectContext

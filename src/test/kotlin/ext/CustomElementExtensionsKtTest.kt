@@ -1,7 +1,7 @@
-package khtml.ext
+package ext
 
 
-import khtml.fragments.context.PageWithContext
+import fragments.context.PageWithContext
 import org.intsite.khtml.loader.KHTML
 import org.mockito.Mockito
 import org.openqa.selenium.By
