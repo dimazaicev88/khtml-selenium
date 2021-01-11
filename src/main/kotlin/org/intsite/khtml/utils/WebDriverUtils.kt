@@ -63,7 +63,7 @@ object WebDriverUtils {
             WaitCondition.ENABLED -> waitElement.waitEnabled(timeAnnotation, pollingAnnotation)
             WaitCondition.DISABLED -> waitElement.waitDisabled(timeAnnotation, pollingAnnotation)
             WaitCondition.AJAX -> waitElement.waitJqueryXHR(timeAnnotation, pollingAnnotation)
-            WaitCondition.DISPLAY -> waitElement.waitDisabled(timeAnnotation, pollingAnnotation)
+            WaitCondition.DISPLAY -> waitElement.waitDisplay(timeAnnotation, pollingAnnotation)
             WaitCondition.TEXT_PRESENT -> waitElement.waitTextPresent(timeAnnotation, pollingAnnotation)
             WaitCondition.INVISIBLE -> waitElement.waitInvisible(timeAnnotation, pollingAnnotation)
             WaitCondition.NOT_EXITS -> waitElement.waitNotExists(timeAnnotation, pollingAnnotation)
