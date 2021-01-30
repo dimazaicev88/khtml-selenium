@@ -34,12 +34,12 @@ class WaitElement constructor(private val driver: WebDriver, var xpath: String =
         return this
     }
 
-    fun waitCustomCondition(timeOut: Long = 15, polling: Long = 50, fw: FluentWait<WebDriver>? = null, condition: () -> Boolean): WaitElement {
+    fun waitCustomCondition(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null, condition: () -> Boolean): WaitElement {
         getFluentWait(timeOut, polling, fw).until { condition() }
         return this
     }
 
-    fun waitJqueryXHR(timeOut: Long = 300, polling: Long = 50, fw: FluentWait<WebDriver>? = null): WaitElement {
+    fun waitJqueryXHR(timeOut: Long = 30, polling: Long = 500, fw: FluentWait<WebDriver>? = null): WaitElement {
         waitCustomCondition(timeOut, polling, fw) {
             driver.js(
                     "if(window.jQuery==null){\n" +

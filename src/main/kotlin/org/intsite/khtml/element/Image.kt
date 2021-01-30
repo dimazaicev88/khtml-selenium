@@ -4,7 +4,7 @@ import org.intsite.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 
 
-class Image(_xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Image>(_xpath, driver, testName) {
+class Image(xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Image>(xpath, driver, testName) {
 
     val src: String
         get() = execWebElementAction(xpath, driver) {

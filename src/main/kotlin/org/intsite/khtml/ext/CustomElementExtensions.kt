@@ -155,7 +155,7 @@ fun <T : CustomElement<T>> T.waitAjaxContentReadyAfter(timeOut: Long = 15, func:
 
 fun <T : CustomElement<T>> T.waitJqueryXHR(
     timeOut: Long = 30,
-    polling: Long = 50,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitJqueryXHR(timeOut, polling, fw)
@@ -163,22 +163,22 @@ fun <T : CustomElement<T>> T.waitJqueryXHR(
 }
 
 fun <T : CustomElement<T>> T.waitTextPresent(
-    timeOut: Long = 5,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitTextPresent(timeOut, polling, fw)
     return this
 }
 
-fun <T : CustomElement<T>> T.waitDisplay(timeOut: Long = 5, polling: Long = 50, fw: FluentWait<WebDriver>? = null): T {
+fun <T : CustomElement<T>> T.waitDisplay(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null): T {
     WaitElement(this.driver, this.xpath).waitDisplay(timeOut, polling, fw)
     return this
 }
 
 fun <T : CustomElement<T>> T.waitClickable(
-    timeOut: Long = 5,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitClickable(timeOut, polling, fw)
@@ -186,8 +186,8 @@ fun <T : CustomElement<T>> T.waitClickable(
 }
 
 fun <T : CustomElement<T>> T.waitInvisible(
-    timeOut: Long = 5,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitInvisible(timeOut, polling, fw)
@@ -195,22 +195,22 @@ fun <T : CustomElement<T>> T.waitInvisible(
 }
 
 fun <T : CustomElement<T>> T.waitNotExists(
-    timeOut: Long = 30,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitNotExists(timeOut, polling, fw)
     return this
 }
 
-fun <T : CustomElement<T>> T.waitEnabled(timeOut: Long = 5, polling: Long = 50, fw: FluentWait<WebDriver>? = null): T {
+fun <T : CustomElement<T>> T.waitEnabled(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null): T {
     WaitElement(this.driver, this.xpath).waitEnabled(timeOut, polling, fw)
     return this
 }
 
 fun <T : CustomElement<T>> T.waitDisabled(
-    timeOut: Long = 5,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitDisabled(timeOut, polling, fw)
@@ -218,8 +218,8 @@ fun <T : CustomElement<T>> T.waitDisabled(
 }
 
 fun <T : CustomElement<T>> T.waitCustomCondition(
-    timeOut: Long = 5,
-    polling: Long = 50,
+    timeOut: Long = 15,
+    polling: Long = 500,
     condition: (element: T) -> Boolean
 ): T {
     WaitElement(this.driver, this.xpath).waitCustomCondition(timeOut, polling) { condition(this) }

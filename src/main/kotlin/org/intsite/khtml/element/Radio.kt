@@ -6,14 +6,12 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 
 
-class Radio(_xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Radio>(_xpath, driver, testName) {
+class Radio(xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Radio>(xpath, driver, testName) {
 
     private val buttons: List<WebElement>
         get() {
             val radioName = element.getAttribute("name")
-
-            val xpath: String
-            xpath = if (radioName.isEmpty()) {
+            val xpath: String = if (radioName.isEmpty()) {
                 "self::* | following::input[@type = 'radio'] | preceding::input[@type = 'radio']"
             } else {
                 "self::* | following::input[@type = 'radio' and @name = '$radioName'] | preceding::input[@type = 'radio' and @name = '$radioName']"
