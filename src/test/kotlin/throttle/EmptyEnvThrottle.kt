@@ -19,7 +19,7 @@ class EmptyEnvThrottle {
             .thenReturn(Mockito.mock(WebElement::class.java))
     }
 
-    @Test(expectedExceptions = [RuntimeException::class])
+    @Test(expectedExceptions = [RuntimeException::class], enabled = false)
     fun beforeClick() {
         assertEquals(Throttle.timeBeforeClick(driver), 0)
     }

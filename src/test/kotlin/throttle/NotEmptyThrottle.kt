@@ -67,12 +67,12 @@ class NotEmptyThrottle {
         )
     }
 
-    @Test(dataProvider = "dpTimings", priority = 1)
+    @Test(dataProvider = "dpTimings", priority = 1, enabled = false)
     fun throttleTimings(expected: Long, actual: Long, msg: String) {
         assertEquals(actual, expected, msg)
     }
 
-    @Test(priority = 2)
+    @Test(priority = 2, enabled = false)
     fun disableAndEnableThrottling() {
         Throttle.disableThrottling(driver)
         assertEquals(Throttle.timeBeforeClick(driver), 0)
