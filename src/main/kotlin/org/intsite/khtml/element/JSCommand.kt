@@ -167,7 +167,6 @@ class JsExecutor<T>(
         return element
     }
 
-
     @Suppress("UNCHECKED_CAST")
     fun focus(): T {
         Thread.sleep(Throttle.timeBeforeFocus(driver))
