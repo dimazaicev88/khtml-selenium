@@ -92,9 +92,15 @@ class WaitElement constructor(private val driver: WebDriver, var xpath: String =
         return this
     }
 
+    fun waitExists(timeOut: Long, polling: Long, fw: FluentWait<WebDriver>? = null): WaitElement {
+        getFluentWait(timeOut, polling, fw).until {
+            driver.js("return ${driver.jsFindElement(xpath)}.singleNodeValue!=null").toString().toBoolean()
+        }
+        return this
+    }
+
     @Suppress("ThrowableNotThrown")
     fun waitAllAjax(timeOut: Long, polling: Long, fw: FluentWait<WebDriver>? = null): WaitElement {
-        Thread.sleep(500)
         if (driver.js("return window.openHTTPs === undefined").toString().toBoolean()) {
             RuntimeException("AJAX Interceptor not register")
         }

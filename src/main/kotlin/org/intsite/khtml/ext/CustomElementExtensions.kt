@@ -62,7 +62,7 @@ fun <T : CustomElement<T>> T.waitCompleteAjaxAfter(timeOut: Long = 15, func: (T)
     }
 }
 
-fun <T : CustomElement<T>> T.waitAjax(polling: Long = 50, timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.waitAjax(polling: Long = 500, timeOut: Long = 15): T {
     wait.waitCustomCondition(timeOut = timeOut, polling) {
         driver.js(
             """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
@@ -153,6 +153,19 @@ fun <T : CustomElement<T>> T.waitAjaxContentReadyAfter(timeOut: Long = 15, func:
     }
 }
 
+fun <T : CustomElement<T>> T.clickAndWaitAjaxComplete(polling: Long = 500,timeOut: Long = 15): T {
+    this.resetLS()
+    this.jse.click()
+    wait.waitCustomCondition(timeOut = timeOut) {
+        driver.js(
+            """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
+                         return ajaxState.complete===true"""
+        ).toString().toBoolean()
+    }
+    return this
+}
+
+
 fun <T : CustomElement<T>> T.waitJqueryXHR(
     timeOut: Long = 30,
     polling: Long = 500,
@@ -170,6 +183,16 @@ fun <T : CustomElement<T>> T.waitTextPresent(
     WaitElement(this.driver, this.xpath).waitTextPresent(timeOut, polling, fw)
     return this
 }
+
+fun <T : CustomElement<T>> T.waitExists(
+    timeOut: Long = 15,
+    polling: Long = 500,
+    fw: FluentWait<WebDriver>? = null
+): T {
+    WaitElement(this.driver, this.xpath).waitExists(timeOut, polling, fw)
+    return this
+}
+
 
 fun <T : CustomElement<T>> T.waitDisplay(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null): T {
     WaitElement(this.driver, this.xpath).waitDisplay(timeOut, polling, fw)
