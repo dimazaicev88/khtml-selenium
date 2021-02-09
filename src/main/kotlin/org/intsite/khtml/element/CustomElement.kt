@@ -118,9 +118,9 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     val parent: T
         get() {
             val tmpXpath = XpathBuilder.buildXpath(
-                listOf(XpathItem(xpath, this::class.java), XpathItem("parent::*", this::class.java))
+                    listOf(XpathItem(xpath, this::class.java), XpathItem("parent::*", this::class.java))
             )
-            return ReflectUtils.newInstance(this::class.java, tmpXpath, driver) as T
+            return ReflectUtils.newInstance(this::class.java, tmpXpath, driver, testName) as T
         }
 
     @Suppress("UNCHECKED_CAST")
@@ -192,21 +192,21 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     }
 
     fun repeatClick(
-        repeat: Int = 15,
-        timeOut: Long = 2,
-        refresh: Boolean = true,
-        polling: Long = 1000,
-        condition: () -> Boolean
+            repeat: Int = 15,
+            timeOut: Long = 2,
+            refresh: Boolean = true,
+            polling: Long = 1000,
+            condition: () -> Boolean
     ): T {
         val wait = FluentWait(driver)
-            .withTimeout(Duration.ofSeconds(timeOut))
-            .pollingEvery(Duration.ofMillis(polling))
-            .ignoreAll(
-                listOf(
-                    org.openqa.selenium.NoSuchElementException::class.java,
-                    StaleElementReferenceException::class.java
+                .withTimeout(Duration.ofSeconds(timeOut))
+                .pollingEvery(Duration.ofMillis(polling))
+                .ignoreAll(
+                        listOf(
+                                org.openqa.selenium.NoSuchElementException::class.java,
+                                StaleElementReferenceException::class.java
+                        )
                 )
-            )
         for (i in (0..repeat)) {
             try {
                 execWebElementAction(xpath, driver) {

@@ -1,12 +1,33 @@
 package element
 
+import org.intsite.khtml.element.HtmlElement
+import org.mockito.Mockito
+import org.openqa.selenium.By
+import org.openqa.selenium.WebElement
+import org.openqa.selenium.chrome.ChromeDriver
+import org.testng.Assert.assertEquals
+import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 
 class CustomElementTest {
+    private var driver: ChromeDriver = Mockito.mock(ChromeDriver::class.java)
+
+    @BeforeClass
+    fun init() {
+        Mockito.`when`(driver.findElements(By.xpath("")))
+                .thenReturn(arrayListOf(Mockito.mock(WebElement::class.java), Mockito.mock(WebElement::class.java)))
+
+        Mockito.`when`(driver.findElement(By.xpath("")))
+                .thenReturn(Mockito.mock(WebElement::class.java))
+    }
+
+    @Test
+    fun testParentElement() {
+      assertEquals(HtmlElement("", driver).parent.xpath,"//parent::*")
+    }
 
     @Test
     fun testGetElement() {
-
     }
 
     @Test
