@@ -21,14 +21,14 @@ class ContextInjectInvoker : MethodInvoker {
 
         val clazz = methodWrapper.method.declaringClass
         if (
-            clazz.isAnnotationPresent(Fragment::class.java) && (tmpFullXpath.isEmpty() ||
-                    (tmpFullXpath.isNotEmpty() && clazz != tmpFullXpath.last.clazz))
+                clazz.isAnnotationPresent(Fragment::class.java) && (tmpFullXpath.isEmpty() ||
+                        (tmpFullXpath.isNotEmpty() && clazz != tmpFullXpath.last.clazz))
         ) {
             tmpFullXpath.add(
-                XpathItem(
-                    clazz.getAnnotation(Fragment::class.java).xpath,
-                    methodWrapper.method.declaringClass
-                )
+                    XpathItem(
+                            clazz.getAnnotation(Fragment::class.java).xpath,
+                            methodWrapper.method.declaringClass
+                    )
             )
         }
 

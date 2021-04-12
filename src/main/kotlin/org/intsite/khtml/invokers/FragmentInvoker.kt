@@ -1,5 +1,7 @@
 package org.intsite.khtml.invokers
 
+import org.intsite.khtml.annotations.Fragment
+import org.intsite.khtml.annotations.NotUseParentXpath
 import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.conf.Configuration
 import org.intsite.khtml.conf.XpathItem
@@ -22,6 +24,9 @@ class FragmentInvoker : MethodInvoker {
         if (methodWrapper.method.declaringClass.isAssignableFrom(config.parentClass)) {
             config.xpathItems.clear()
         }
+        if (methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java)) {
+            config.xpathItems.clear()
+        }
 
         /**
          * Если интерфейс Generic
@@ -40,26 +45,30 @@ class FragmentInvoker : MethodInvoker {
                 /**
                  * Добавляем Xpath для класса и всех его родителей
                  */
-                config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+                if (!methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java))
+                    config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
 
                 /**
                  * Добавляем Xpath для метода и возвращаемого класса
                  */
                 config.xpathItems.addAll(
-                    methodWrapper.method.xpathForFragment.map {
-                        XpathItem(replaceParams(it.xpath, mapParams), it.clazz, it.position)
-                    }
+                        methodWrapper.method.xpathForFragment.map {
+                            XpathItem(replaceParams(it.xpath, mapParams), it.clazz, it.position)
+                        }
                 )
                 return config.proxyCache.computeIfAbsent(methodWrapper.method.returnMethodType!!) {
                     createProxy(methodWrapper.method.returnMethodType!!, ProxyHandler(config))
                 }
             } else {
                 val classForProxy = config.parentClass.mapGeneric[methodWrapper.method.declaringClass]
-                config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+
+                if (!methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java))
+                    config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+
                 config.xpathItems.addAll(
-                    methodWrapper.method.xpathForFragment.map {
-                        XpathItem(replaceParams(it.xpath, mapParams), methodWrapper.method.declaringClass, it.position)
-                    }
+                        methodWrapper.method.xpathForFragment.map {
+                            XpathItem(replaceParams(it.xpath, mapParams), methodWrapper.method.declaringClass, it.position)
+                        }
                 )
                 return config.proxyCache.computeIfAbsent(classForProxy!!) {
                     createProxy(classForProxy, ProxyHandler(config))
@@ -77,7 +86,7 @@ class FragmentInvoker : MethodInvoker {
 
             config.target = methodWrapper.method.declaringClass
 
-            if (methodWrapper.method.declaringClass.isFragment)
+            if (methodWrapper.method.declaringClass.isFragment && !methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java))
                 config.xpathItems.addAll(methodWrapper.method.declaringClass.allXpathItemsByClass)
 
             val fullXpath = methodWrapper.method.xpathForFragment.map {

@@ -1,14 +1,13 @@
 package org.intsite.khtml.invokers
 
 import org.intsite.khtml.annotations.Fragment
+import org.intsite.khtml.annotations.NotUseParentXpath
 import org.intsite.khtml.annotations.Page
 import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpath
 import org.intsite.khtml.conf.Configuration
 import org.intsite.khtml.conf.XpathItem
 import org.intsite.khtml.ext.*
-import org.intsite.khtml.ext.isFragment
-import org.intsite.khtml.ext.returnMethodType
 import org.intsite.khtml.utils.MethodWrapper
 import org.intsite.khtml.utils.ReflectUtils.createProxy
 import org.intsite.khtml.utils.ReflectUtils.getMethodParams
@@ -17,7 +16,6 @@ import org.intsite.khtml.utils.WebDriverUtils.safeOperation
 import org.intsite.khtml.utils.WebDriverUtils.waitConditionFragment
 import org.openqa.selenium.By
 import org.openqa.selenium.WebElement
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
 
 class FragmentListInvoker : MethodInvoker {
 
@@ -30,9 +28,13 @@ class FragmentListInvoker : MethodInvoker {
         val proxyClass: Class<*>
 
         if (
-            methodWrapper.method.declaringClass.isAnnotationPresent(Page::class.java) ||
-            methodWrapper.method.declaringClass.isAssignableFrom(config.parentClass)
+                methodWrapper.method.declaringClass.isAnnotationPresent(Page::class.java) ||
+                methodWrapper.method.declaringClass.isAssignableFrom(config.parentClass)
         ) {
+            config.xpathItems.clear()
+        }
+
+        if (methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java)) {
             config.xpathItems.clear()
         }
 
@@ -53,7 +55,10 @@ class FragmentListInvoker : MethodInvoker {
              */
             if (!mapGenerics.containsKey(classForMethod)) {
                 proxyClass = methodReturnedClass
-                config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+
+                if (!methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java)) {
+                    config.xpathItems.addAll(parentClassForMethod.allXpathItemsByClass)
+                }
                 /**
                  * Добавляем Xpath для метода и возвращаемого класса
                  */
@@ -66,10 +71,10 @@ class FragmentListInvoker : MethodInvoker {
                 proxyClass = mapGenerics.getValue(methodReturnedClass)
                 config.xpathItems.addAll(methodReturnedClass.allXpathItemsByClass)
                 config.xpathItems.add(
-                    XpathItem(
-                        replaceParams(methodWrapper.method.xpathThisMethod, mapParams),
-                        mapGenerics.getValue(methodReturnedClass)
-                    )
+                        XpathItem(
+                                replaceParams(methodWrapper.method.xpathThisMethod, mapParams),
+                                mapGenerics.getValue(methodReturnedClass)
+                        )
                 )
             }
             config.instanceId = 0
@@ -95,9 +100,9 @@ class FragmentListInvoker : MethodInvoker {
 
             val fullXpath = methodWrapper.method.xpathForFragment.map {
                 XpathItem(
-                    replaceParams(it.xpath, mapParams),
-                    it.clazz,
-                    it.position
+                        replaceParams(it.xpath, mapParams),
+                        it.clazz,
+                        it.position
                 )
             }
             config.xpathItems.addAll(fullXpath)
@@ -111,7 +116,7 @@ class FragmentListInvoker : MethodInvoker {
             } as List<WebElement>
             val listElements = (elements.indices).map {
                 val typeGeneric = methodWrapper.method.returnMethodType
-                    ?: throw RuntimeException("Undefined generic type")
+                        ?: throw RuntimeException("Undefined generic type")
                 createProxy(typeGeneric, ProxyHandler(config, instanceId = it))
             }.toList()
             config.target = listElements

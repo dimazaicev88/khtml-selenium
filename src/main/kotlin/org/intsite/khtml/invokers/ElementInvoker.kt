@@ -1,6 +1,7 @@
 package org.intsite.khtml.invokers
 
 import org.intsite.khtml.annotations.Element
+import org.intsite.khtml.annotations.NotUseParentXpath
 import org.intsite.khtml.annotations.Wait
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpath
 import org.intsite.khtml.build.XpathBuilder.Companion.buildXpathWithLastPosition
@@ -42,11 +43,15 @@ class ElementInvoker : MethodInvoker {
             tmpFullXpath.clear()
         }
 
+        if (methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java)) {
+            tmpFullXpath.clear()
+        }
+
         if (tmpFullXpath.size > 0) {
             tmpFullXpath.last.position = config.instanceId
         }
 
-        if (methodWrapper.method.declaringClass.isFragment) {
+        if (methodWrapper.method.declaringClass.isFragment && !methodWrapper.method.isAnnotationPresent(NotUseParentXpath::class.java)) {
             val fragmentXpath = buildXpath(methodWrapper.method.declaringClass.allXpathItemsByClass)
             tmpFullXpath.add(XpathItem(fragmentXpath, clazz = methodWrapper.method.declaringClass))
         }
@@ -59,16 +64,16 @@ class ElementInvoker : MethodInvoker {
         when {
             methodWrapper.method.returnType.isCustomElement -> {
                 return createCustomElement(
-                    methodWrapper.method.returnType,
-                    buildXpath(tmpFullXpath),
-                    config.driver
+                        methodWrapper.method.returnType,
+                        buildXpath(tmpFullXpath),
+                        config.driver
                 )
             }
             methodWrapper.method.returnType.isHtmlElement -> {
                 return createHtmlElement(
-                    methodWrapper.method.returnType as Class<HtmlElement>,
-                    buildXpath(tmpFullXpath),
-                    config.driver
+                        methodWrapper.method.returnType as Class<HtmlElement>,
+                        buildXpath(tmpFullXpath),
+                        config.driver
                 )
             }
             methodWrapper.method.isReturnCustomElementList -> {
@@ -77,9 +82,9 @@ class ElementInvoker : MethodInvoker {
                 } as List<WebElement>
                 return (elements.indices).map {
                     createCustomElement(
-                        methodWrapper.method.returnMethodType!!,
-                        buildXpathWithLastPosition(tmpFullXpath, it + 1),
-                        config.driver
+                            methodWrapper.method.returnMethodType!!,
+                            buildXpathWithLastPosition(tmpFullXpath, it + 1),
+                            config.driver
                     )
                 }.toList()
             }
@@ -89,9 +94,9 @@ class ElementInvoker : MethodInvoker {
                 } as List<WebElement>
                 return (elements.indices).map {
                     createHtmlElement(
-                        methodWrapper.method.returnMethodType as Class<HtmlElement>,
-                        buildXpathWithLastPosition(tmpFullXpath, it + 1),
-                        config.driver
+                            methodWrapper.method.returnMethodType as Class<HtmlElement>,
+                            buildXpathWithLastPosition(tmpFullXpath, it + 1),
+                            config.driver
                     )
                 }.toList()
             }

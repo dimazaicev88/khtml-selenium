@@ -39,7 +39,12 @@ internal val Method.xpathForFragment: LinkedList<XpathItem>
         return when {
             this.isAnnotationPresent(Fragment::class.java) -> {
                 val xpathItems = LinkedList<XpathItem>()
-                xpathItems.add(XpathItem(this.getAnnotation(Fragment::class.java).xpath, this.declaringClass))
+                xpathItems.add(
+                        XpathItem(
+                                this.getAnnotation(Fragment::class.java).xpath,
+                                this.declaringClass
+                        )
+                )
                 xpathItems
             }
             !this.isListReturn && this.returnType?.isFragment!! -> {
@@ -106,9 +111,9 @@ val Method.xpathThisMethod: String
 
 fun Class<*>.findKotlinDefaultMethod(methodName: String, vararg parameterTypes: Class<*>): Method {
     return listOf(this.declaredClasses.toList()).flatMap { it.toList() }.map { it.declaredMethods.toList() }
-        .flatMap { it.toList() }.first {
-            it.name == methodName && Objects.deepEquals(parameterTypes, it.parameterTypes)
-        }
+            .flatMap { it.toList() }.first {
+                it.name == methodName && Objects.deepEquals(parameterTypes, it.parameterTypes)
+            }
 }
 
 val Class<*>.allXpathItemsByClass: LinkedList<XpathItem>
@@ -116,7 +121,12 @@ val Class<*>.allXpathItemsByClass: LinkedList<XpathItem>
         val listXpath = LinkedList<XpathItem>()
 
         if (this.isAnnotationPresent(Fragment::class.java)) {
-            listXpath.add(XpathItem(this.getAnnotation(Fragment::class.java).xpath.replaceFirst(".", ""), this))
+            listXpath.add(
+                    XpathItem(
+                            this.getAnnotation(Fragment::class.java).xpath.replaceFirst(".", ""),
+                            this
+                    )
+            )
         }
 
         fun findXpath(clazz: Class<*>) {
@@ -132,10 +142,10 @@ val Class<*>.allXpathItemsByClass: LinkedList<XpathItem>
 
                 if (interfacesWithAnnotation.size == 1) {
                     listXpath.add(
-                        XpathItem(
-                            interfacesWithAnnotation[0].getAnnotation(Fragment::class.java).xpath,
-                            clazz
-                        )
+                            XpathItem(
+                                    interfacesWithAnnotation[0].getAnnotation(Fragment::class.java).xpath,
+                                    clazz
+                            )
                     )
                 }
 
