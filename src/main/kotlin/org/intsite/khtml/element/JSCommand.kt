@@ -8,10 +8,10 @@ import org.intsite.khtml.waits.WaitElement
 import org.openqa.selenium.WebDriver
 
 class JsExecutor<T>(
-    private val xpath: String,
-    private val driver: WebDriver,
-    private val element: T,
-    val testName: String? = null
+        private val xpath: String,
+        private val driver: WebDriver,
+        private val element: T,
+        val testName: String? = null
 ) {
 
     val notExists: Boolean
@@ -27,7 +27,7 @@ class JsExecutor<T>(
     val isDisplayed: Boolean
         get() {
             return driver.js(
-                """function isVisible(e) {
+                    """function isVisible(e) {
                 if(e==null) return false;            
                     return !!( e.offsetWidth || e.offsetHeight || e.getClientRects().length );
                 }; return isVisible(${driver.jsFindElement(xpath)}.singleNodeValue)"""
@@ -59,7 +59,7 @@ class JsExecutor<T>(
     val text: String
         get() {
             Thread.sleep(Throttle.timeBeforeGetText(driver))
-            WaitElement(driver, xpath).waitCustomCondition(polling = 500, timeOut =15) {
+            WaitElement(driver, xpath).waitCustomCondition(polling = 500, timeOut = 15) {
                 this.exists && this.isDisplayed
             }
             val text = safeOperation {
@@ -182,7 +182,9 @@ class JsExecutor<T>(
 
     @Suppress("UNCHECKED_CAST")
     fun scrollTop(): T {
-        driver.js("window.scrollTo(0,0)")
+        safeOperation {
+            driver.js("window.scrollTo(0,0)")
+        }
         return element
     }
 
@@ -190,6 +192,14 @@ class JsExecutor<T>(
     fun scroll(): T {
         safeOperation {
             driver.js("arguments[0].scrollIntoView(true);")
+        }
+        return element
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun scrollBottom(): T {
+        safeOperation {
+            driver.js("arguments[0].scrollIntoView(false);", (element as CustomElement<HtmlElement>).element)
         }
         return element
     }
