@@ -1,5 +1,3 @@
-[![](https://jitpack.io/v/dimazaicev88/khtml-selenium.svg)](https://jitpack.io/#dimazaicev88/khtml-selenium)
-
 1. **Аннотации** 
 2. **Классы врапперы для webelement**
 3. **Инициализация Page Object.** 
@@ -11,9 +9,7 @@
 - Аннотаций помечается абстрактный класс содержащий в себе фрагменты и элементы, аннотация указывает на то что данный абстрактный класс является итоговой страницей, пример:
 ```kotlin
 @Page
-interface AbstractPage {
-
-} 
+interface AbstractPage 
 ```
 аннотация Page может быть наследуемой, пример:
 ```kotlin
@@ -23,8 +19,8 @@ interface AbstractPage : BasePage
 interface BasePage
 ```
 
-**@Fragment(xpath="", val inheritance: Boolean = false)**
-- Аннотацией помечается метод или класс. Если аннотация указана над методом то данный метод должен вернуть абстрактный класс фрагмента или коллекцию фрагментов. Данная аннотация принимает  не обязательный параметр селектор xpath, который будет использован для построения xpath, пример:
+**@Fragment(xpath="")**
+- Аннотаций помечается помечается метод или класс. Если аннотация указана над методом то данный метод должен вернуть абстрактный класс фрагмента или коллекцию фрагментов.Данная аннотация принимает один обязательный параметр селектор xpath, по которому будет искаться данный фрагмент, пример:
 ```kotlin
 @Fragment(".//body")
 interface AbstractFragment {
@@ -39,26 +35,10 @@ interface SomeFragment {
     fun someButton(): Button
 }
 ```
-Параметр inheritance разрешает или запрещает наследование xpath от parent класса
-
-Пример:
-```kotlin
-@Fragment(".//div[@id='fancybox-wrap']", inheritance = true)
-interface FancyBoxBase
-
-interface FBBasket : FancyBoxBase {
-
-    @Element(".//div")
-    fun content(): HtmlElement
-}
-
-content().xpath // вернёт xpath - .//div[@id='fancybox-wrap']/div
-
-```
 
  
 **@Element(xpath="")**
-- Аннотаций помечается метод абстрактного класса возвращающий элемент(Button,CheckBox...) или коллекцию элементов, Методы с данной аннотацией могут возвращаться только объекты реализующие абстрактный класс CustomElement<T>,пример:
+- Аннотаций помечается метод абстрактного класса возвращающий элемент(Button,CheckBox...) или коллекцию элементов, Методы с данной аннотацией могут возвращаться только объекты реализующие интерфейс BaseWebElement,пример:
 ```kotlin
 @Fragment(".//body")
 interface SomeFragment {
@@ -120,7 +100,7 @@ interface SomeFragment {
 ```
 
 **@Wait(time: Long = 30,condition: WaitCondition,polling: Long = 500)**
-- Аннотация служит для ожидания элементов и фрагментов в абстрактном классе. Аннотация принимает 3 параметра, два из которых имеют значения по умолчанию. Аннотация указывается только над методами.
+- Аннотация служит для ожидания элементов и фрагментов в абстрактном классе.Аннотация принимает 3 параметра, два из которых имеют значения по умолчанию. Аннотация указывается только над методами.
 Параметры аннотации:
 1. time - Время ожидания
 2. condition - Условие ожидания
@@ -152,43 +132,6 @@ interface SomeFragment {
 }
 ```
 
-**@JSCall(val funcName: String = "", val js: String = "", val async: Boolean = false)**
-- Аннотация служит для выполнения кода на Java Script или вызова функции на JavaScript. Если указан funcName будет вызвана функция указанная в funcName, если funcName не указана, будет выполнен блок кода указанный в  js  
-Параметры аннотации:
-1. funcName- Название функции объявленной в JavaScript 
-2. js- Код на JavaScript
-3. async- Способ выполнения JavaScript кода, если true то код будет выполнен асинхронно иначе синхронно
-
-Пример:
-```kotlin
-@JSCall(funcName = "addInFavorite", async = true)
-fun addInFavoriteWithoutUi(@Param("idFavoriteList") idFavoriteList: Int, @Param("codeGoods") codeGoods: Int)
-
-@JSCall(js = "console.log(1)", async = true)
-fun printConsoleLog()
-```
-
-**@NotUseParentXpath**
-- Аннотация которая запрещает наследование xpath от родителя
-
-Пример:
-```kotlin
-@Fragment(".//div[@id='parent']")
-interface ParentFragment {
-
-    @NotUseParentXpath
-    @Fragment(".//div[@class='childFragment']")
-    fun childFragment(): ChildFragment
-}
-
-interface ChildFragment {
-
-    @Element(".//div[@id='btn']")
-    fun someButton(): Button
-}
-childFragment().someButton().xpath // вернет .//div[@class='childFragment']/div[@id='btn']
-
-```
 # Классы врапперы для webelement
 
 **В фреймворк встроены следующие классы врапперы для webelement**:
@@ -198,9 +141,6 @@ childFragment().someButton().xpath // вернет .//div[@class='childFragment'
 - HtmlElement
 - Image
 - Link
-- Radio
-- Text
-- TextInput
 - Select
 
 **Список общих свойств и методов**:
@@ -220,9 +160,13 @@ childFragment().someButton().xpath // вернет .//div[@class='childFragment'
 - removeClass(className: String): T
 - click(): T
 - move(): T
+- jsChange(): T
+- jsBlur(): T
+- jsClick(): T
+- jsFocus(): T
 - submit(): T
-- jse: JsExecutor<T> - доступ к JsExecutor, классу который содержит методы для работы с элементами с помощью JavaScript.
-- xpath - Путь к элементу
+- show(): T
+- hide(): T
 - sendKeys(vararg charSequences: CharSequence): T
 - setValue(value: CharSequence): T (тоже самое что вызвать clear(),sendKeys() у элемента)
 - clear(): T
@@ -239,8 +183,8 @@ childFragment().someButton().xpath // вернет .//div[@class='childFragment'
 ```kotlin
 package example
 
-import core.khtml.annotations.Page
-import core.khtml.loader.KHTML
+import khtml.annotations.Page
+import khtml.loader.KHTML
 import core.khtml.webdriver.WebPage
 import org.openqa.selenium.WebDriver
 import org.testng.Assert.assertEquals
@@ -338,6 +282,3 @@ class MainPageImpl constructor(private val driver: WebDriver) {
     }
 }
 ```
-
-
-

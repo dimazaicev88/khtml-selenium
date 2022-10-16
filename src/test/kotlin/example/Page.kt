@@ -1,71 +1,28 @@
 package example
 
-import core.khtml.annotations.*
-import core.khtml.element.HtmlElement
-import core.khtml.element.Link
+import org.intsite.khtml.annotations.Element
+import org.intsite.khtml.annotations.Fragment
+import org.intsite.khtml.element.Link
 
+@Fragment(".//body")
+interface AbstractFragment {
 
-@Page
-interface ElementInPage {
+    @Fragment(".//div")
+    fun someFragment(): SomeFragment
 
-    @Element(".//div[@class='elementInPage']")
-    fun elementInPage(): Link
+    @Element(".//a']")
+    fun someLink(): Link
 }
 
-@Page
-interface FragmentInPage {
+interface SomeFragment {
 
-    @Fragment(".//div[@class='fragmentInPage']")
-    fun fragmentInPage(): ResultFragment
+    fun def(): Boolean {
+        return false
+    }
 }
 
-interface ResultFragment {
 
-    @InjectContext
-    fun context(): HtmlElement
-}
 
-@Fragment(".//div[@class='contextFragmentContext']")
-interface ContextInFragment {
 
-    @InjectContext
-    fun context(): HtmlElement
-}
 
-@Fragment(".//div[@class='FragmentInFragment']")
-interface FragmentInFragment {
-
-    @Fragment(".//div[@class='fragmentInFragment']")
-    fun fragmentInFragment(): ResultFragment
-}
-
-interface InheritanceFragment : BaseFragmentLevel3 {
-
-    @InjectContext
-    fun context(): HtmlElement
-}
-
-@Fragment(".//div[@class='BaseFragmentLevel3']", inherited = true)
-interface BaseFragmentLevel3 : BaseFragmentLevel2 {
-
-}
-
-@Fragment(".//div[@class='BaseFragmentLevel2']", inherited = true)
-interface BaseFragmentLevel2 : BaseFragment {
-
-}
-
-@Fragment(".//div[@class='BaseFragment']", inherited = true)
-interface BaseFragment {
-
-}
-
-@Dump
-@Fragment(".//div[@class='DumpFragment']")
-interface DumpFragment {
-
-    @Fragment(".//ddd")
-    fun listFragments(): List<BaseFragment>
-
-}
 
