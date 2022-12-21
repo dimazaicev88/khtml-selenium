@@ -14,6 +14,7 @@ class ContextFragmentsTest {
     private lateinit var pageWithContext: PageWithContext
     private lateinit var emptyFragmentWithContext: EmptyFragmentWithContext
     private lateinit var fragmentWithContext: FragmentWithContext
+    private lateinit var watchedRecently: WatchedRecently
 
     init {
         Mockito.`when`(driver.findElements(By.xpath("")))
@@ -31,14 +32,25 @@ class ContextFragmentsTest {
         assertEquals(pageWithContext.context().xpath, "")
     }
 
-    @Test(enabled = false)
+    @Test
     fun testContextEmptyFragment() {
         assertEquals(emptyFragmentWithContext.context().xpath, "")
     }
 
-    @Test(enabled = false)
+    @Test
     fun testContextFragment() {
         assertEquals(fragmentWithContext.context().xpath, ".//div[@id='TestFragment']")
+
+        assertEquals(watchedRecently.context().xpath, "(.//h2[text()='Вы недавно смотрели']/ancestor::div/following-sibling::div)[1]")
+        Mockito.`when`(driver.findElements(By.xpath("(//h2[text()='Вы недавно смотрели']/ancestor::div/following-sibling::div)[1]//*[@data-test-element='goods-item']")))
+            .thenReturn(
+                listOf(
+                    Mockito.mock(WebElement::class.java),
+                    Mockito.mock(WebElement::class.java),
+                    Mockito.mock(WebElement::class.java),
+                )
+            )
+        assertEquals( watchedRecently.findAllItem()[0].context().xpath, "(//h2[text()='Вы недавно смотрели']/ancestor::div/following-sibling::div)[1]//*[@data-test-element='goods-item']")
     }
 
     @Test

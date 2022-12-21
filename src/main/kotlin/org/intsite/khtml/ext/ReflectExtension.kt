@@ -7,8 +7,6 @@ import org.intsite.khtml.conf.XpathItem
 import org.intsite.khtml.element.CustomElement
 import org.intsite.khtml.element.HtmlElement
 import org.intsite.khtml.utils.ReflectUtils
-import sun.reflect.generics.reflectiveObjects.ParameterizedTypeImpl
-import java.lang.RuntimeException
 import java.lang.reflect.Method
 import java.lang.reflect.ParameterizedType
 import java.util.*
@@ -88,8 +86,8 @@ internal val Class<*>.mapGeneric: Map<Class<*>, Class<*>>
     get() {
         val map = hashMapOf<Class<*>, Class<*>>()
         this.genericInterfaces.map {
-            if (it is ParameterizedTypeImpl)
-                map[it.rawType] = Class.forName(it.actualTypeArguments[0].typeName)
+            if (it is ParameterizedType)
+                map[it.rawType as Class<*>] = Class.forName(it.actualTypeArguments[0].typeName)
         }
         return map
     }

@@ -9,6 +9,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.html5.LocalStorage
 import org.openqa.selenium.support.ui.WebDriverWait
 import java.lang.Thread.sleep
+import java.time.Duration
 
 fun WebDriver.js(js: String): Any? {
     return safeOperation {
@@ -28,14 +29,15 @@ fun WebDriver.alertAccept() {
     }
 }
 
-fun WebDriver.jsFindElement(xpath: String) = "document.evaluate(\"$xpath\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)"
+fun WebDriver.jsFindElement(xpath: String) =
+    "document.evaluate(\"$xpath\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null)"
 
 fun WebDriver.alertDismiss() {
     switchTo().alert().dismiss()
 }
 
 fun WebDriver.waitForLoad() {
-    WebDriverWait(this, 30).until { it.js("return document.readyState") == "complete" } as Boolean
+    WebDriverWait(this, Duration.ofSeconds(30)).until { it.js("return document.readyState") == "complete" } as Boolean
 }
 
 fun WebDriver.waitJQueryXHR(): WebDriver {
@@ -60,24 +62,24 @@ fun WebDriver.updateCookies(startPage: String, cookies: Set<Cookie>, refresh: Bo
         this.navigate().refresh()
 }
 
-fun WebDriver.waitWindow(countWindows: Long, timeOutInSeconds: Long = 15) {
-    WebDriverWait(this, timeOutInSeconds, 100).until {
+fun WebDriver.waitWindow(countWindows: Long, duration: Duration = Duration.ofSeconds(15)) {
+    WebDriverWait(this, duration, Duration.ofMillis(100)).until {
         it.windowHandles
         it.windowHandles.size.toLong() == countWindows
     }
 }
 
-fun WebDriver.waitAlert(timeOut: Int = 5) {
-    WebDriverWait(this, timeOut.toLong())
-            .ignoring(NoAlertPresentException::class.java)
-            .until {
-                try {
-                    this.switchTo().alert()
-                    true
-                } catch (e: NoAlertPresentException) {
-                    false
-                }
+fun WebDriver.waitAlert(timeOut: Duration = Duration.ofSeconds(5)) {
+    WebDriverWait(this, timeOut)
+        .ignoring(NoAlertPresentException::class.java)
+        .until {
+            try {
+                this.switchTo().alert()
+                true
+            } catch (e: NoAlertPresentException) {
+                false
             }
+        }
 }
 
 val WebDriver.alertText: String?

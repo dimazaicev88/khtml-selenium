@@ -4,6 +4,7 @@ import org.intsite.khtml.element.CustomElement
 import org.intsite.khtml.waits.WaitElement
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.support.ui.FluentWait
+import java.time.Duration
 
 const val seleniumAjax = "selenium_ajax"
 const val ajaxContentReady = "ajaxContentReady"
@@ -32,59 +33,65 @@ fun <T : CustomElement<T>> T.resetLS(): T {
     }
 }
 
-fun <T : CustomElement<T>> T.waitCompleteSuccessAjaxAfter(timeOut: Long = 15, func: (T) -> Unit): T {
+fun <T : CustomElement<T>> T.waitCompleteSuccessAjaxAfter(
+    timeOut: Duration = Duration.ofSeconds(15),
+    func: (T) -> Unit
+): T {
     synchronized(driver) {
         this.resetLS()
         func(this)
         wait.waitCustomCondition(timeOut = timeOut) {
             driver.js(
                 """
-                         var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
-                         return ajaxState.complete===true && ajaxState.success===true"""
+                    var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
+                   return ajaxState.complete===true && ajaxState.success===true"""
             ).toString().toBoolean()
         }
         return this
     }
 }
 
-fun <T : CustomElement<T>> T.waitCompleteAjaxAfter(timeOut: Long = 15, func: (T) -> Unit): T {
+fun <T : CustomElement<T>> T.waitCompleteAjaxAfter(timeOut: Duration = Duration.ofSeconds(15), func: (T) -> Unit): T {
     synchronized(driver) {
         this.resetLS()
         func(this)
         wait.waitCustomCondition(timeOut = timeOut) {
             driver.js(
                 """
-                         var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
-                         return ajaxState.complete===true"""
+                    var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
+                    return ajaxState.complete===true"""
             ).toString().toBoolean()
         }
         return this
     }
 }
 
-fun <T : CustomElement<T>> T.waitAjax(polling: Long = 500, timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.waitAjax(
+    polling: Duration = Duration.ofMillis(500),
+    timeOut: Duration = Duration.ofSeconds(15)
+): T {
     wait.waitCustomCondition(timeOut = timeOut, polling) {
         driver.js(
-            """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
-                         return ajaxState.complete===true && ajaxState.success===true"""
+            """ var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
+                return ajaxState.complete===true && ajaxState.success===true"""
         ).toString().toBoolean()
     }
     return this
 }
 
-fun <T : CustomElement<T>> T.clickAndWaitAjax(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.clickAndWaitAjax(timeOut: Duration = Duration.ofSeconds(15)): T {
     this.resetLS()
     this.jse.click()
     wait.waitCustomCondition(timeOut = timeOut) {
         driver.js(
-            """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
-                         return ajaxState.complete===true && ajaxState.success===true"""
+            """ var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
+                return ajaxState.complete===true && ajaxState.success===true"""
         ).toString().toBoolean()
     }
     return this
 }
 
-fun <T : CustomElement<T>> T.clickAndWaitFancyBoxComplete(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.clickAndWaitFancyBoxComplete(timeOut: Duration = Duration.ofSeconds(15)): T {
     this.resetLS()
     this.jse.click()
     wait.waitCustomCondition(timeOut = timeOut) {
@@ -93,7 +100,7 @@ fun <T : CustomElement<T>> T.clickAndWaitFancyBoxComplete(timeOut: Long = 15): T
     return this
 }
 
-fun <T : CustomElement<T>> T.clickAndWaitFancyBoxClosed(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.clickAndWaitFancyBoxClosed(timeOut: Duration = Duration.ofSeconds(15)): T {
     this.resetLS()
     this.jse.click()
     wait.waitCustomCondition(timeOut = timeOut) {
@@ -102,7 +109,10 @@ fun <T : CustomElement<T>> T.clickAndWaitFancyBoxClosed(timeOut: Long = 15): T {
     return this
 }
 
-fun <T : CustomElement<T>> T.waitFancyBoxCompleteAfter(timeOut: Long = 15, func: (T) -> Unit): T {
+fun <T : CustomElement<T>> T.waitFancyBoxCompleteAfter(
+    timeOut: Duration = Duration.ofSeconds(15),
+    func: (T) -> Unit
+): T {
     this.resetLS()
     func(this)
     wait.waitCustomCondition(timeOut = timeOut) {
@@ -111,21 +121,21 @@ fun <T : CustomElement<T>> T.waitFancyBoxCompleteAfter(timeOut: Long = 15, func:
     return this
 }
 
-fun <T : CustomElement<T>> T.waitFancyBoxComplete(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.waitFancyBoxComplete(timeOut: Duration = Duration.ofSeconds(15)): T {
     wait.waitCustomCondition(timeOut = timeOut) {
         driver.localStorage[fancyBoxComplete].toBoolean()
     }
     return this
 }
 
-fun <T : CustomElement<T>> T.waitFancyBoxCleanup(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.waitFancyBoxCleanup(timeOut: Duration = Duration.ofSeconds(15)): T {
     wait.waitCustomCondition(timeOut = timeOut) {
         driver.localStorage[fancyBoxCleanup].toBoolean()
     }
     return this
 }
 
-fun <T : CustomElement<T>> T.waitFancyBoxClosedAfter(timeOut: Long = 15, func: (T) -> Unit): T {
+fun <T : CustomElement<T>> T.waitFancyBoxClosedAfter(timeOut: Duration = Duration.ofSeconds(15), func: (T) -> Unit): T {
     this.resetLS()
     func(this)
     wait.waitCustomCondition(timeOut = timeOut) {
@@ -134,15 +144,18 @@ fun <T : CustomElement<T>> T.waitFancyBoxClosedAfter(timeOut: Long = 15, func: (
     return this
 }
 
-fun <T : CustomElement<T>> T.waitFancyBoxClosed(timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.waitFancyBoxClosed(timeOut: Duration = Duration.ofSeconds(15)): T {
     wait.waitCustomCondition(timeOut = timeOut) {
         driver.localStorage[fancyBoxClosed].toBoolean()
-//        driver.js("""return localStorage.getItem('$fancyBoxClosed')""").toString().toBoolean()
+        driver.js("""return localStorage.getItem('$fancyBoxClosed')""").toString().toBoolean()
     }
     return this
 }
 
-fun <T : CustomElement<T>> T.waitAjaxContentReadyAfter(timeOut: Long = 15, func: (T) -> Unit): T {
+fun <T : CustomElement<T>> T.waitAjaxContentReadyAfter(
+    timeOut: Duration = Duration.ofSeconds(15),
+    func: (T) -> Unit
+): T {
     synchronized(driver) {
         this.resetLS()
         func(this)
@@ -153,10 +166,13 @@ fun <T : CustomElement<T>> T.waitAjaxContentReadyAfter(timeOut: Long = 15, func:
     }
 }
 
-fun <T : CustomElement<T>> T.clickAndWaitAjaxComplete(polling: Long = 500,timeOut: Long = 15): T {
+fun <T : CustomElement<T>> T.clickAndWaitAjaxComplete(
+    polling: Duration = Duration.ofMillis(500),
+    timeOut: Duration = Duration.ofSeconds(15)
+): T {
     this.resetLS()
     this.jse.click()
-    wait.waitCustomCondition(timeOut = timeOut) {
+    wait.waitCustomCondition(polling = polling, timeOut = timeOut) {
         driver.js(
             """var ajaxState= JSON.parse(localStorage.getItem('$seleniumAjax'));
                          return ajaxState.complete===true"""
@@ -167,8 +183,8 @@ fun <T : CustomElement<T>> T.clickAndWaitAjaxComplete(polling: Long = 500,timeOu
 
 
 fun <T : CustomElement<T>> T.waitJqueryXHR(
-    timeOut: Long = 30,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(30),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitJqueryXHR(timeOut, polling, fw)
@@ -176,8 +192,8 @@ fun <T : CustomElement<T>> T.waitJqueryXHR(
 }
 
 fun <T : CustomElement<T>> T.waitTextPresent(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitTextPresent(timeOut, polling, fw)
@@ -185,8 +201,8 @@ fun <T : CustomElement<T>> T.waitTextPresent(
 }
 
 fun <T : CustomElement<T>> T.waitExists(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitExists(timeOut, polling, fw)
@@ -194,14 +210,18 @@ fun <T : CustomElement<T>> T.waitExists(
 }
 
 
-fun <T : CustomElement<T>> T.waitDisplay(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null): T {
+fun <T : CustomElement<T>> T.waitDisplay(
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
+    fw: FluentWait<WebDriver>? = null
+): T {
     WaitElement(this.driver, this.xpath).waitDisplay(timeOut, polling, fw)
     return this
 }
 
 fun <T : CustomElement<T>> T.waitClickable(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitClickable(timeOut, polling, fw)
@@ -209,8 +229,8 @@ fun <T : CustomElement<T>> T.waitClickable(
 }
 
 fun <T : CustomElement<T>> T.waitInvisible(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitInvisible(timeOut, polling, fw)
@@ -218,22 +238,26 @@ fun <T : CustomElement<T>> T.waitInvisible(
 }
 
 fun <T : CustomElement<T>> T.waitNotExists(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitNotExists(timeOut, polling, fw)
     return this
 }
 
-fun <T : CustomElement<T>> T.waitEnabled(timeOut: Long = 15, polling: Long = 500, fw: FluentWait<WebDriver>? = null): T {
+fun <T : CustomElement<T>> T.waitEnabled(
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
+    fw: FluentWait<WebDriver>? = null
+): T {
     WaitElement(this.driver, this.xpath).waitEnabled(timeOut, polling, fw)
     return this
 }
 
 fun <T : CustomElement<T>> T.waitDisabled(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     fw: FluentWait<WebDriver>? = null
 ): T {
     WaitElement(this.driver, this.xpath).waitDisabled(timeOut, polling, fw)
@@ -241,15 +265,15 @@ fun <T : CustomElement<T>> T.waitDisabled(
 }
 
 fun <T : CustomElement<T>> T.waitCustomCondition(
-    timeOut: Long = 15,
-    polling: Long = 500,
+    timeOut: Duration = Duration.ofSeconds(15),
+    polling: Duration = Duration.ofMillis(500),
     condition: (element: T) -> Boolean
 ): T {
     WaitElement(this.driver, this.xpath).waitCustomCondition(timeOut, polling) { condition(this) }
     return this
 }
 
-fun <T : CustomElement<T>> T.sleep(time: Long = 150): T {
-    Thread.sleep(time)
+fun <T : CustomElement<T>> T.sleep(time: Duration = Duration.ofMillis(150)): T {
+    Thread.sleep(time.toMillis())
     return this
 }

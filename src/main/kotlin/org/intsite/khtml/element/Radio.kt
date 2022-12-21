@@ -6,7 +6,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 
 
-class Radio(xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Radio>(xpath, driver, testName) {
+class Radio(xpath: String, driver: WebDriver) : CustomElement<Radio>(xpath, driver) {
 
     private val buttons: List<WebElement>
         get() {

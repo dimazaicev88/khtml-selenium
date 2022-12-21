@@ -3,7 +3,7 @@ package org.intsite.khtml.element
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 
-class Select(xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Select>(xpath, driver, testName) {
+class Select(xpath: String, driver: WebDriver) : CustomElement<Select>(xpath, driver) {
 
     private val select: org.openqa.selenium.support.ui.Select
         get() = org.openqa.selenium.support.ui.Select(element)

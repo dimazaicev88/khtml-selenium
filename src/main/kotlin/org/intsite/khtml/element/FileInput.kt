@@ -5,8 +5,8 @@ import org.intsite.khtml.utils.WebDriverUtils.execWebElementAction
 import org.openqa.selenium.WebDriver
 import java.io.File
 
-class FileInput(xpath: String, driver: WebDriver, testName: String? = null) :
-    CustomElement<FileInput>(xpath, driver, testName) {
+class FileInput(xpath: String, driver: WebDriver) :
+    CustomElement<FileInput>(xpath, driver) {
 
     fun setFileToUpload(fileName: String): FileInput {
         Thread.sleep(Throttle.timeBeforeFileUpload(driver))

@@ -3,9 +3,8 @@ package org.intsite.khtml.element
 import org.intsite.khtml.utils.WebDriverUtils
 import org.openqa.selenium.WebDriver
 
-open class Button(xpath: String, driver: WebDriver, testName: String? = null) : CustomElement<Button>(xpath, driver, testName) {
+open class Button(xpath: String, driver: WebDriver) : CustomElement<Button>(xpath, driver) {
 
-    @Suppress("UNCHECKED_CAST")
     fun submit(): Button {
         WebDriverUtils.execWebElementAction(xpath, driver) {
             it.submit()

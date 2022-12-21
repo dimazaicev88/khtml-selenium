@@ -10,6 +10,7 @@ import org.openqa.selenium.StaleElementReferenceException
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import java.lang.reflect.Method
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -32,9 +33,9 @@ object WebDriverUtils {
     }
 
     fun execWebElementAction(
-            xpath: String,
-            driver: WebDriver,
-            block: (element: WebElement) -> Any?
+        xpath: String,
+        driver: WebDriver,
+        block: (element: WebElement) -> Any?
     ): Any? {
         return safeOperation {
             block(driver.findElement(By.xpath(xpath)))!!
@@ -55,8 +56,8 @@ object WebDriverUtils {
 
     fun waitConditionFragment(method: Method, driver: WebDriver, xpathItem: LinkedList<XpathItem>) {
         val conditionAnnotation = method.getAnnotation(Wait::class.java).condition
-        val pollingAnnotation = method.getAnnotation(Wait::class.java).polling
-        val timeAnnotation = method.getAnnotation(Wait::class.java).time
+        val pollingAnnotation = Duration.ofMillis(method.getAnnotation(Wait::class.java).polling)
+        val timeAnnotation = Duration.ofSeconds(method.getAnnotation(Wait::class.java).time)
         val waitElement = WaitElement(driver, xpath = buildXpath(xpathItem))
         when (conditionAnnotation) {
             WaitCondition.TO_CLICKABLE -> waitElement.waitClickable(timeAnnotation, pollingAnnotation)

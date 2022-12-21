@@ -16,13 +16,13 @@ import org.openqa.selenium.support.ui.FluentWait
 import java.time.Duration
 import java.util.concurrent.atomic.AtomicInteger
 
-abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val testName: String? = null) {
+abstract class CustomElement<T>(val xpath: String, val driver: WebDriver) {
     val wait = WaitElement(driver = driver, xpath = xpath)
     val actionId: AtomicInteger = AtomicInteger(0)
     private val _object = Any()
 
     val jse: JsExecutor<T> by lazy {
-        JsExecutor(xpath, driver, this as T, testName)
+        JsExecutor(xpath, driver, this as T)
     }
 
     val element: WebElement
@@ -37,7 +37,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
             } as List<WebElement>
             return elements.isNotEmpty()
         }
-
     val notExists: Boolean
         get() {
             val elements = safeOperation {
@@ -46,7 +45,6 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
             return elements.isEmpty()
         }
 
-    @Suppress("CAST_NEVER_SUCCEEDS")
     val source: String
         get() = execWebElementAction(xpath, driver) {
             it.getAttribute("innerHTML")
@@ -81,6 +79,7 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
             Thread.sleep(Throttle.timeAfterIsSelected(driver))
             return result
         }
+
     val isEnabled: Boolean
         get() {
             Throttle.timeBeforeIsEnabled(driver)
@@ -118,10 +117,19 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     val parent: T
         get() {
             val tmpXpath = XpathBuilder.buildXpath(
-                    listOf(XpathItem(xpath, this::class.java), XpathItem("parent::*", this::class.java))
+                listOf(XpathItem(xpath, this::class.java), XpathItem("parent::*", this::class.java))
             )
-            return ReflectUtils.newInstance(this::class.java, tmpXpath, driver, testName) as T
+            return ReflectUtils.newInstance(this::class.java, tmpXpath, driver) as T
         }
+
+    fun exists(timeout: Duration, polling: Duration = Duration.ofMillis(500)): Boolean = try {
+        WaitElement(driver, xpath).waitExists(timeout, polling)
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+    fun notExists(timeout: Duration, polling: Duration = Duration.ofMillis(500)): Boolean = !exists(timeout, polling)
 
     @Suppress("UNCHECKED_CAST")
     fun move(): T {
@@ -192,21 +200,21 @@ abstract class CustomElement<T>(val xpath: String, val driver: WebDriver, val te
     }
 
     fun repeatClick(
-            repeat: Int = 15,
-            timeOut: Long = 2,
-            refresh: Boolean = true,
-            polling: Long = 1000,
-            condition: () -> Boolean
+        repeat: Int = 15,
+        timeOut: Duration = Duration.ofSeconds(2),
+        refresh: Boolean = true,
+        polling: Duration = Duration.ofMillis(1000),
+        condition: () -> Boolean
     ): T {
         val wait = FluentWait(driver)
-                .withTimeout(Duration.ofSeconds(timeOut))
-                .pollingEvery(Duration.ofMillis(polling))
-                .ignoreAll(
-                        listOf(
-                                org.openqa.selenium.NoSuchElementException::class.java,
-                                StaleElementReferenceException::class.java
-                        )
+            .withTimeout(timeOut)
+            .pollingEvery(polling)
+            .ignoreAll(
+                listOf(
+                    org.openqa.selenium.NoSuchElementException::class.java,
+                    StaleElementReferenceException::class.java
                 )
+            )
         for (i in (0..repeat)) {
             try {
                 execWebElementAction(xpath, driver) {

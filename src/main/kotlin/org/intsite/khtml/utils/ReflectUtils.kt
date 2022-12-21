@@ -4,7 +4,6 @@ import com.google.common.collect.Lists
 import org.apache.commons.lang3.ClassUtils
 import org.apache.commons.lang3.reflect.ConstructorUtils.invokeConstructor
 import org.intsite.khtml.annotations.*
-import org.intsite.khtml.element.CustomElement
 import org.intsite.khtml.element.HtmlElement
 import org.intsite.khtml.ext.isListReturn
 import org.intsite.khtml.ext.returnMethodType
@@ -25,19 +24,19 @@ object ReflectUtils {
     fun <T> newInstance(clazz: Class<T>, vararg args: Any?): T {
         if (clazz.isMemberClass && !Modifier.isStatic(clazz.modifiers)) {
             val outerClass = clazz.declaringClass
-            val outerObject = outerClass.newInstance()
+            val outerObject = outerClass.getDeclaredConstructor().newInstance()
             return invokeConstructor(clazz, *Lists.asList(outerObject, args).toTypedArray())
         }
         return invokeConstructor(clazz, *args)
     }
 
     fun <T> createCustomElement(
-        clazz: Class<out T>, xpath: String, driver: WebDriver, testName: String? = null
-    ): T = newInstance(clazz, xpath, driver, testName)
+        clazz: Class<out T>, xpath: String, driver: WebDriver
+    ): T = newInstance(clazz, xpath, driver)
 
     fun createHtmlElement(
-        clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver, testName: String? = null
-    ): HtmlElement = newInstance(clazz, xpath, driver, testName)
+        clazz: Class<out HtmlElement>, xpath: String, driver: WebDriver
+    ): HtmlElement = newInstance(clazz, xpath, driver)
 
     fun findMethod(cls: Class<*>, methodName: String, vararg parameterTypes: Class<*>): Method {
         return listOf(cls).plus(ClassUtils.getAllSuperclasses(cls)).plus(
@@ -55,38 +54,45 @@ object ReflectUtils {
         args: Array<out Any>?
     ): HashMap<Method, MethodInvoker> {
         val mapInvoker: HashMap<Method, MethodInvoker> = hashMapOf()
-        val listMethods = arrayListOf<Method>()
+        val listMethods = mutableListOf<Method>()
         listMethods.addAll(clazz.declaredMethods.toMutableList())
         ClassUtils.getAllInterfaces(clazz).map { listMethods.addAll(it.declaredMethods.toMutableList()) }
-        listMethods.forEach {
+        listMethods.filter { it.name == method.name }.forEach {
             when {
                 it.isAnnotationPresent(Element::class.java) -> {
                     mapInvoker[it] = ElementInvoker()
                 }
+
                 it.isListReturn && (it.isAnnotationPresent(Fragment::class.java) || (it.returnMethodType != null && it.returnMethodType!!.isAnnotationPresent(
                     Fragment::class.java
                 )))
                 -> {
                     mapInvoker[it] = FragmentListInvoker()
                 }
+
                 !it.isListReturn && (it.isAnnotationPresent(Fragment::class.java) || (it.returnMethodType != null && it.returnMethodType!!.isAnnotationPresent(
                     Fragment::class.java
                 )))
                 -> {
                     mapInvoker[it] = FragmentInvoker()
                 }
+
                 it.isAnnotationPresent(InjectContext::class.java) -> {
                     mapInvoker[it] = ContextInjectInvoker()
                 }
+
                 it.isAnnotationPresent(InjectWebDriver::class.java) -> {
                     mapInvoker[it] = WebDriverInjectInvoker()
                 }
+
                 it.isAnnotationPresent(JSCall::class.java) -> {
                     mapInvoker[it] = JSCallInvoker()
                 }
+
                 isDefaultMethod(method, args) -> {
                     mapInvoker[it] = DefaultMethodInvoker()
                 }
+
                 else -> mapInvoker[it] = TargetMethodInvoker()
             }
         }
@@ -106,7 +112,7 @@ object ReflectUtils {
         if (args.isNullOrEmpty()) return hashMapOf()
         return (0 until method.parameterCount)
             .filter { index -> hasParameterAnnotation(method.parameters[index]) }
-            .map { index -> getParameterName(method.parameters[index]) to Objects.toString(args[index]) }.toMap()
+            .associate { index -> getParameterName(method.parameters[index]) to Objects.toString(args[index]) }
 
     }
 

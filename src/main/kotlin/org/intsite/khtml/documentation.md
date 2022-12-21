@@ -99,7 +99,7 @@ interface SomeFragment {
 }
 ```
 
-**@Wait(time: Long = 30,condition: WaitCondition,polling: Long = 500)**
+**@Wait(time: Duration = 30,condition: WaitCondition,polling: Duration = 500)**
 - Аннотация служит для ожидания элементов и фрагментов в абстрактном классе.Аннотация принимает 3 параметра, два из которых имеют значения по умолчанию. Аннотация указывается только над методами.
 Параметры аннотации:
 1. time - Время ожидания
